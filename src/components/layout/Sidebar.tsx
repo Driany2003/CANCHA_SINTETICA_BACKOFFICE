@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   HomeIcon, 
@@ -7,8 +7,12 @@ import {
   FutbolIcon, 
   ChartIcon, 
   UserIcon, 
-  CloseIcon 
+  CloseIcon,
+  BuildingOfficeIcon,
+  LogoutIcon
 } from '../icons/Icons';
+import { CURRENT_USER_ROLE, MENU_ITEMS_BY_ROLE, UserRole } from '../../config/userConfig';
+import ModalConfirmarLogout from '../ModalConfirmarLogout';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -17,6 +21,12 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
+  const [modalLogoutAbierto, setModalLogoutAbierto] = useState(false);
+
+  // ===== SISTEMA DE ROLES =====
+  // El rol se obtiene de la configuración centralizada
+  const userRole = CURRENT_USER_ROLE;
+  const menuItems = MENU_ITEMS_BY_ROLE[userRole];
 
   const getIconForPath = (path: string) => {
     switch (path) {
@@ -30,6 +40,10 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         return <FutbolIcon className="mr-3 h-5 w-5" />;
       case '/clientes': 
         return <UserIcon className="mr-3 h-5 w-5" />;
+      case '/usuarios': 
+        return <UserIcon className="mr-3 h-5 w-5" />;
+      case '/empresa': 
+        return <BuildingOfficeIcon className="mr-3 h-5 w-5" />;
       case '/reportes': 
         return <ChartIcon className="mr-3 h-5 w-5" />;
       default: 
@@ -37,16 +51,25 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     }
   };
 
-  const menuItems = [
-    { path: '/', label: 'Dashboard' },
-    { path: '/reservas', label: 'Reservas' },
-    { path: '/nueva-reserva', label: 'Nueva Reserva' },
-    { path: '/canchas', label: 'Canchas' },
-    { path: '/clientes', label: 'Clientes' },
-    { path: '/reportes', label: 'Reportes' },
-  ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Funciones para el modal de logout
+  const abrirModalLogout = () => {
+    setModalLogoutAbierto(true);
+  };
+
+  const cerrarModalLogout = () => {
+    setModalLogoutAbierto(false);
+  };
+
+  const confirmarLogout = () => {
+    // En un sistema real, aquí se limpiaría el token de autenticación
+    // y se redirigiría al login
+    console.log('Cerrando sesión...');
+    setModalLogoutAbierto(false);
+    // window.location.href = '/login';
+  };
 
   const SidebarContent = () => (
     <>
@@ -70,6 +93,17 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           </Link>
         ))}
       </nav>
+      
+      {/* Botón de cerrar sesión */}
+      <div className="px-4 pb-6">
+        <button
+          onClick={abrirModalLogout}
+          className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors duration-200"
+        >
+          <LogoutIcon className="mr-3 h-5 w-5" />
+          <span className="font-medium">Cerrar Sesión</span>
+        </button>
+      </div>
     </>
   );
 
@@ -105,6 +139,17 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
               </Link>
             ))}
           </nav>
+          
+          {/* Botón de cerrar sesión móvil */}
+          <div className="px-4 pb-6">
+            <button
+              onClick={abrirModalLogout}
+              className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors duration-200"
+            >
+              <LogoutIcon className="mr-3 h-5 w-5" />
+              <span className="font-medium">Cerrar Sesión</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -114,6 +159,13 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           <SidebarContent />
         </div>
       </div>
+
+      {/* Modal de confirmación de logout */}
+      <ModalConfirmarLogout
+        abierto={modalLogoutAbierto}
+        onCerrar={cerrarModalLogout}
+        onConfirmar={confirmarLogout}
+      />
     </>
   );
 };

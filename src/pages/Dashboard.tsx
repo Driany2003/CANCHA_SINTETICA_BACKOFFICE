@@ -1,96 +1,212 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Reserva, EstadoReserva } from '../types/Reserva';
+import { Reserva, EstadoReserva, OrigenReserva } from '../types/Reserva';
 
 const Dashboard: React.FC = () => {
+  // Usar los mismos datos que en Reservas.tsx
+  const todasLasReservas: Reserva[] = [
+    {
+      id: '1',
+      nombreCliente: 'Juan Pérez',
+      telefono: '123-456-7890',
+      email: 'juan@email.com',
+      fecha: '2024-01-15',
+      hora: '14:00',
+      duracion: 2,
+      cancha: 'Cancha 1',
+      estado: 'pagado_confirmado' as EstadoReserva,
+      precio: 120,
+      metodoPago: 'efectivo',
+      fechaCreacion: '2024-01-10',
+      origen: 'local' as OrigenReserva,
+      localId: '1',
+      notas: 'Cliente regular'
+    },
+    {
+      id: '2',
+      nombreCliente: 'María García',
+      telefono: '098-765-4321',
+      email: 'maria@email.com',
+      fecha: '2024-01-16',
+      hora: '16:00',
+      duracion: 1,
+      cancha: 'Cancha 2',
+      estado: 'pendiente_de_pago' as EstadoReserva,
+      precio: 60,
+      metodoPago: 'tarjeta',
+      fechaCreacion: '2024-01-11',
+      origen: 'web' as OrigenReserva,
+      localId: '1',
+      notas: 'Primera vez'
+    },
+    {
+      id: '3',
+      nombreCliente: 'Carlos López',
+      telefono: '555-123-4567',
+      email: 'carlos@email.com',
+      fecha: '2024-01-17',
+      hora: '18:00',
+      duracion: 3,
+      cancha: 'Cancha 1',
+      estado: 'pendiente_de_pago' as EstadoReserva,
+      precio: 180,
+      metodoPago: 'transferencia',
+      fechaCreacion: '2024-01-12',
+      origen: 'local' as OrigenReserva,
+      localId: '2',
+      notas: 'Grupo de amigos'
+    },
+    {
+      id: '4',
+      nombreCliente: 'Ana Martínez',
+      telefono: '987-654-3210',
+      email: 'ana@email.com',
+      fecha: '2024-01-18',
+      hora: '20:00',
+      duracion: 2,
+      cancha: 'Cancha 3',
+      estado: 'pagado_confirmado' as EstadoReserva,
+      precio: 120,
+      metodoPago: 'efectivo',
+      fechaCreacion: '2024-01-13',
+      origen: 'web' as OrigenReserva,
+      localId: '2',
+      notas: 'Cliente VIP'
+    },
+    {
+      id: '5',
+      nombreCliente: 'Luis Rodríguez',
+      telefono: '456-789-0123',
+      email: 'luis@email.com',
+      fecha: '2024-01-19',
+      hora: '10:00',
+      duracion: 1,
+      cancha: 'Cancha 1',
+      estado: 'pendiente_de_pago' as EstadoReserva,
+      precio: 60,
+      metodoPago: 'tarjeta',
+      fechaCreacion: '2024-01-14',
+      origen: 'local' as OrigenReserva,
+      localId: '1',
+      notas: 'Reserva matutina'
+    },
+    {
+      id: '6',
+      nombreCliente: 'Carmen Silva',
+      telefono: '789-012-3456',
+      email: 'carmen@email.com',
+      fecha: '2024-01-20',
+      hora: '15:00',
+      duracion: 3,
+      cancha: 'Cancha 2',
+      estado: 'pagado_confirmado' as EstadoReserva,
+      precio: 180,
+      metodoPago: 'transferencia',
+      fechaCreacion: '2024-01-15',
+      origen: 'web' as OrigenReserva,
+      localId: '3',
+      notas: 'Torneo local'
+    },
+    {
+      id: '7',
+      nombreCliente: 'Roberto Torres',
+      telefono: '321-654-0987',
+      email: 'roberto@email.com',
+      fecha: '2024-01-21',
+      hora: '17:00',
+      duracion: 2,
+      cancha: 'Cancha 3',
+      estado: 'pendiente_de_pago' as EstadoReserva,
+      precio: 120,
+      metodoPago: 'efectivo',
+      fechaCreacion: '2024-01-16',
+      origen: 'local' as OrigenReserva,
+      localId: '2',
+      notas: 'Cliente nuevo'
+    },
+    {
+      id: '8',
+      nombreCliente: 'Patricia Vega',
+      telefono: '654-321-0987',
+      email: 'patricia@email.com',
+      fecha: '2024-01-22',
+      hora: '19:00',
+      duracion: 1,
+      cancha: 'Cancha 1',
+      estado: 'pagado_confirmado' as EstadoReserva,
+      precio: 60,
+      metodoPago: 'yape',
+      fechaCreacion: '2024-01-17',
+      origen: 'web' as OrigenReserva,
+      localId: '1',
+      notas: 'Reserva express'
+    }
+  ];
+
+  // Mostrar solo las más recientes (últimas 5)
+  const reservasRecientes = todasLasReservas.slice(0, 5);
+
+  // Datos de locales para mostrar nombres
+  const locales = [
+    { id: '1', nombre: 'Complejo de Fútbol Norte' },
+    { id: '2', nombre: 'Complejo de Fútbol Sur' },
+    { id: '3', nombre: 'Complejo de Fútbol Este' }
+  ];
+
+  // Función para obtener nombre del local
+  const getNombreLocal = (localId: string) => {
+    const local = locales.find(l => l.id === localId);
+    return local ? local.nombre : 'Local no encontrado';
+  };
+
+  // Calcular estadísticas reales basadas en los datos
+  const totalReservas = todasLasReservas.length;
+  const reservasPagadas = todasLasReservas.filter(r => r.estado === 'pagado_confirmado').length;
+  const ingresosTotales = todasLasReservas
+    .filter(r => r.estado === 'pagado_confirmado')
+    .reduce((total, r) => total + r.precio, 0);
+  const clientesUnicos = new Set(todasLasReservas.map(r => r.nombreCliente)).size;
+
   const estadisticas = [
     {
       titulo: 'Total Reservas',
-      valor: '156',
+      valor: totalReservas.toString(),
       cambio: '+12%',
       color: 'from-green-500 to-emerald-600',
       icono: '📅'
     },
     {
-      titulo: 'Ingresos del Mes',
-      valor: 'S/ 9,840',
+      titulo: 'Ingresos Confirmados',
+      valor: `S/ ${ingresosTotales.toLocaleString()}`,
       cambio: '+18%',
       color: 'from-green-600 to-emerald-700',
       icono: '💰'
     },
     {
-      titulo: 'Clientes Activos',
-      valor: '89',
+      titulo: 'Clientes Únicos',
+      valor: clientesUnicos.toString(),
       cambio: '+8%',
       color: 'from-emerald-500 to-teal-600',
       icono: '👥'
     },
     {
-      titulo: 'Canchas Ocupadas',
-      valor: '78%',
+      titulo: 'Reservas Pagadas',
+      valor: `${Math.round((reservasPagadas / totalReservas) * 100)}%`,
       cambio: '+5%',
       color: 'from-green-500 to-emerald-600',
       icono: '⚽'
     }
   ];
 
-  const reservasRecientes: Reserva[] = [
-    {
-      id: '1',
-      nombreCliente: 'Juan Pérez',
-      telefono: '51 912345678',
-      email: 'juan.perez@email.com',
-      fecha: '2024-01-15',
-      hora: '18:00',
-      duracion: 2,
-      cancha: 'Cancha 1',
-      precio: 120,
-      estado: 'pagado_confirmado' as EstadoReserva,
-      metodoPago: 'efectivo',
-      notas: 'Cliente regular',
-      fechaCreacion: '2024-01-10T10:00:00Z'
-    },
-    {
-      id: '2',
-      nombreCliente: 'María García',
-      telefono: '51 923456789',
-      email: 'maria.garcia@email.com',
-      fecha: '2024-01-15',
-      hora: '20:00',
-      duracion: 1,
-      cancha: 'Cancha 2',
-      precio: 60,
-      estado: 'pendiente_de_pago' as EstadoReserva,
-      metodoPago: 'tarjeta',
-      notas: 'Primera vez',
-      fechaCreacion: '2024-01-12T14:30:00Z'
-    },
-    {
-      id: '3',
-      nombreCliente: 'Carlos López',
-      telefono: '51 934567890',
-      email: 'carlos.lopez@email.com',
-      fecha: '2024-01-16',
-      hora: '19:00',
-      duracion: 2,
-      cancha: 'Cancha 3',
-      precio: 120,
-      estado: 'pagado_confirmado' as EstadoReserva,
-      metodoPago: 'transferencia',
-      notas: '',
-      fechaCreacion: '2024-01-13T16:45:00Z'
-    }
-  ];
-
   const getEstadoColor = (estado: EstadoReserva) => {
     switch (estado) {
       case 'pagado_confirmado':
-        return 'status-confirmed';
+        return 'bg-green-100 text-green-800';
       case 'pendiente_de_pago':
-        return 'status-pending-payment';
+        return 'bg-orange-100 text-orange-800';
       default:
-        return 'status-pending-payment';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -101,7 +217,7 @@ const Dashboard: React.FC = () => {
       case 'pendiente_de_pago':
         return 'Pendiente de Pago';
       default:
-        return 'Pendiente de Pago';
+        return 'Desconocido';
     }
   };
 
@@ -125,7 +241,12 @@ const Dashboard: React.FC = () => {
     const horaFin = parseInt(horaInicio) + duracion;
     const horaFinFormateada = `${horaFin.toString().padStart(2, '0')}:${minutoInicio}`;
     
-    return `${fechaFormateada} - ${hora} a ${horaFinFormateada}`;
+    return (
+      <div className="text-slate-600 font-medium">
+        <div className="font-semibold">{fechaFormateada}</div>
+        <div className="text-sm text-slate-500">{hora} - {horaFinFormateada}</div>
+      </div>
+    );
   };
 
   return (
@@ -182,6 +303,7 @@ const Dashboard: React.FC = () => {
                   <th className="table-header">Teléfono</th>
                   <th className="table-header">Fecha y Horario</th>
                   <th className="table-header">Cancha</th>
+                  <th className="table-header">Local</th>
                   <th className="table-header">Precio</th>
                   <th className="table-header">Estado</th>
                 </tr>
@@ -205,10 +327,13 @@ const Dashboard: React.FC = () => {
                       <div className="text-slate-600 font-medium">{reserva.cancha}</div>
                     </td>
                     <td className="table-cell">
+                      <div className="text-slate-600 font-medium">{getNombreLocal(reserva.localId)}</div>
+                    </td>
+                    <td className="table-cell">
                       <div className="font-bold text-slate-900 text-lg">S/ {reserva.precio}</div>
                     </td>
                     <td className="table-cell">
-                      <span className={`status-badge ${getEstadoColor(reserva.estado)}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(reserva.estado)}`}>
                         {getEstadoLabel(reserva.estado)}
                       </span>
                     </td>
@@ -227,6 +352,7 @@ const Dashboard: React.FC = () => {
                       <h3 className="font-semibold text-slate-900 text-lg mb-1">{reserva.nombreCliente}</h3>
                       <p className="text-slate-600 text-sm mb-1">{formatFechaHora(reserva.fecha, reserva.hora, reserva.duracion)}</p>
                       <p className="text-slate-600 text-sm">{reserva.cancha}</p>
+                      <p className="text-slate-600 text-sm font-medium">{getNombreLocal(reserva.localId)}</p>
                       <p className="text-slate-500 text-xs">{reserva.email}</p>
                       <p className="text-slate-500 text-xs">{reserva.telefono}</p>
                     </div>

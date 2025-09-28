@@ -23,7 +23,7 @@ const NuevaReserva: React.FC = () => {
     cancha: '',
     estado: 'pendiente_de_pago' as EstadoReserva,
     precio: 0,
-    metodoPago: 'yape' as MetodoPago,
+    metodoPago: 'efectivo' as MetodoPago,
     notas: ''
   });
 
@@ -33,7 +33,20 @@ const NuevaReserva: React.FC = () => {
   const [tipoHorario, setTipoHorario] = useState<'dia' | 'noche'>('dia');
 
   const handleInputChange = (field: keyof Reserva, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // Si el método de pago es efectivo, automáticamente marcar como pagado_confirmado
+      if (field === 'metodoPago' && value === 'efectivo') {
+        newData.estado = 'pagado_confirmado' as EstadoReserva;
+      }
+      // Si cambia a otro método de pago, volver a pendiente_de_pago
+      else if (field === 'metodoPago' && value !== 'efectivo') {
+        newData.estado = 'pendiente_de_pago' as EstadoReserva;
+      }
+      
+      return newData;
+    });
   };
 
   const calcularPrecio = () => {
@@ -53,7 +66,7 @@ const NuevaReserva: React.FC = () => {
       cancha: '',
       estado: 'pendiente_de_pago' as EstadoReserva,
       precio: 0,
-      metodoPago: 'yape' as MetodoPago,
+      metodoPago: 'efectivo' as MetodoPago,
       notas: ''
     });
     setHorariosSeleccionados([]);
@@ -179,34 +192,6 @@ const NuevaReserva: React.FC = () => {
               <div className="bg-white rounded-xl p-2 border border-slate-200 lg:col-span-2">
                 <h4 className="text-sm font-semibold text-slate-900 mb-2">Configuración de Reserva</h4>
                 
-                <div className="mb-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Horario</label>
-                  <div className="flex space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setTipoHorario('dia')}
-                      className={`px-2 py-1 rounded-lg font-medium transition-colors text-sm ${
-                        tipoHorario === 'dia' 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Día
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTipoHorario('noche')}
-                      className={`px-2 py-1 rounded-lg font-medium transition-colors text-sm ${
-                        tipoHorario === 'noche' 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Noche
-                    </button>
-                  </div>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">Cancha</label>
@@ -317,7 +302,19 @@ const NuevaReserva: React.FC = () => {
               <div className="bg-white rounded-xl p-4 border border-slate-200">
                 <h4 className="text-lg font-semibold text-slate-900 mb-3">Método de pago</h4>
                 
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange('metodoPago', 'efectivo')}
+                    className={`p-2 rounded-md font-medium text-xs transition-all duration-200 ${
+                      formData.metodoPago === 'efectivo'
+                        ? 'bg-green-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="text-center font-semibold">Efectivo</div>
+                  </button>
+                  
                   <button
                     type="button"
                     onClick={() => handleInputChange('metodoPago', 'transferencia')}
@@ -356,6 +353,20 @@ const NuevaReserva: React.FC = () => {
                 </div>
 
                 {/* Detalles del método seleccionado */}
+                {formData.metodoPago === 'efectivo' && (
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-center mb-3">
+                      <h5 className="text-sm font-bold text-green-800">Pago en Efectivo - Inmediato</h5>
+                      <p className="text-xs text-green-600">El cliente paga ahora para reservar fecha futura</p>
+                    </div>
+                    <div className="text-center text-xs">
+                      <p className="text-slate-600">
+                        💰 <span className="font-semibold">Proceso:</span> El cliente paga en efectivo ahora mismo en el local para separar su reserva. La reserva se marca automáticamente como "Pagado - Confirmado".
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {formData.metodoPago === 'transferencia' && (
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="text-center mb-3">
@@ -567,7 +578,11 @@ const NuevaReserva: React.FC = () => {
                 </select>
               </div>
               <p className="mt-2 text-xs text-green-700 bg-green-50 p-2 rounded-lg border border-green-200">
-                <span className="font-semibold">Nota:</span> El campo no se separa hasta que se actualice el estado a "Pagado - Confirmado"
+                <span className="font-semibold">Nota:</span> 
+                {formData.metodoPago === 'efectivo' 
+                  ? 'Pago en efectivo: El cliente ya pagó en el local, la reserva está confirmada automáticamente.'
+                  : 'El campo no se separa hasta que se actualice el estado a "Pagado - Confirmado"'
+                }
               </p>
             </div>
           </div>
@@ -579,11 +594,11 @@ const NuevaReserva: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="mb-8">
           <h1 className="text-4xl font-bold gradient-text">Nueva Reserva</h1>
           <p className="text-slate-600 mt-2">Crea una nueva reserva para generar ingresos</p>
         </div>

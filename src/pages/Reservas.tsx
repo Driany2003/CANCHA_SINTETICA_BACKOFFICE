@@ -11,7 +11,9 @@ import {
 import ModalVerReserva from '../components/ModalVerReserva';
 import ModalEditarReserva from '../components/ModalEditarReserva';
 import ModalConfirmarEliminar from '../components/ModalConfirmarEliminar';
-import { Reserva, EstadoReserva } from '../types/Reserva';
+import { Reserva, EstadoReserva, OrigenReserva } from '../types/Reserva';
+import { Local } from '../types/Empresa';
+import { CURRENT_USER_ROLE, CURRENT_USER_LOCAL_ID } from '../config/userConfig';
 
 const Reservas: React.FC = () => {
   const [filtros, setFiltros] = useState({
@@ -20,6 +22,7 @@ const Reservas: React.FC = () => {
     cliente: '',
     fecha: ''
   });
+  const [localFiltro, setLocalFiltro] = useState<string>('todos');
   const [modalVerAbierto, setModalVerAbierto] = useState(false);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
@@ -27,6 +30,49 @@ const Reservas: React.FC = () => {
 
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(5);
+
+  // ===== SISTEMA DE FILTRADO POR DUEÑO =====
+  const dueñoActualId = 'dueño_1'; // ID del dueño actual
+  
+  // Datos de locales disponibles
+  const todosLosLocales: Local[] = [
+    {
+      id: '1',
+      nombre: 'Complejo de Fútbol Norte',
+      direccion: 'Av. Principal 123, Lima Norte',
+      telefono: '+51 987 654 321',
+      email: 'norte@complejofutbol.com',
+      activo: true,
+      fechaCreacion: '2024-01-01',
+      canchas: [],
+      empresaId: 'dueño_1'
+    },
+    {
+      id: '2',
+      nombre: 'Centro de Fútbol Sur',
+      direccion: 'Jr. Deportes 456, Lima Sur',
+      telefono: '+51 987 654 322',
+      email: 'sur@centrofutbol.com',
+      activo: true,
+      fechaCreacion: '2024-01-15',
+      canchas: [],
+      empresaId: 'dueño_1'
+    },
+    {
+      id: '3',
+      nombre: 'Estadio de Fútbol Este',
+      direccion: 'Av. Deportiva 789, Lima Este',
+      telefono: '+51 987 654 323',
+      email: 'este@estadiofutbol.com',
+      activo: true,
+      fechaCreacion: '2024-02-01',
+      canchas: [],
+      empresaId: 'dueño_1'
+    }
+  ];
+
+  // Filtrar solo los locales del dueño actual
+  const locales = todosLosLocales.filter(local => local.empresaId === dueñoActualId);
   
   const [reservas, setReservas] = useState<Reserva[]>([
     {
@@ -42,6 +88,8 @@ const Reservas: React.FC = () => {
       precio: 120,
       metodoPago: 'efectivo',
       fechaCreacion: '2024-01-10',
+      origen: 'local',
+      localId: '1',
       notas: 'Cliente regular'
     },
     {
@@ -57,6 +105,8 @@ const Reservas: React.FC = () => {
       precio: 60,
       metodoPago: 'tarjeta',
       fechaCreacion: '2024-01-11',
+      origen: 'web',
+      localId: '1',
       notas: 'Primera vez'
     },
     {
@@ -72,6 +122,8 @@ const Reservas: React.FC = () => {
       precio: 180,
       metodoPago: 'transferencia',
       fechaCreacion: '2024-01-12',
+      origen: 'local',
+      localId: '2',
       notas: 'Grupo de amigos'
     },
     {
@@ -87,6 +139,8 @@ const Reservas: React.FC = () => {
       precio: 120,
       metodoPago: 'efectivo',
       fechaCreacion: '2024-01-13',
+      origen: 'web',
+      localId: '2',
       notas: 'Cliente VIP'
     },
     {
@@ -102,6 +156,8 @@ const Reservas: React.FC = () => {
       precio: 60,
       metodoPago: 'tarjeta',
       fechaCreacion: '2024-01-14',
+      origen: 'local',
+      localId: '1',
       notas: 'Reserva matutina'
     },
     {
@@ -117,6 +173,8 @@ const Reservas: React.FC = () => {
       precio: 180,
       metodoPago: 'transferencia',
       fechaCreacion: '2024-01-15',
+      origen: 'web',
+      localId: '3',
       notas: 'Torneo local'
     },
     {
@@ -132,6 +190,8 @@ const Reservas: React.FC = () => {
       precio: 120,
       metodoPago: 'efectivo',
       fechaCreacion: '2024-01-16',
+      origen: 'local',
+      localId: '2',
       notas: 'Cliente nuevo'
     },
     {
@@ -147,9 +207,19 @@ const Reservas: React.FC = () => {
       precio: 60,
       metodoPago: 'tarjeta',
       fechaCreacion: '2024-01-17',
+      origen: 'web',
+      localId: '3',
       notas: 'Reserva nocturna'
     }
   ]);
+
+  // Filtrar reservas por local seleccionado (solo para administradores)
+  // Para trabajadores, solo mostrar reservas de su local asignado
+  const reservasFiltradasPorLocal = CURRENT_USER_ROLE === 'admin' 
+    ? (localFiltro === 'todos' 
+        ? reservas 
+        : reservas.filter(reserva => reserva.localId === localFiltro))
+    : reservas.filter(reserva => reserva.localId === CURRENT_USER_LOCAL_ID);
 
   const canchas = ['Cancha 1', 'Cancha 2', 'Cancha 3'];
   const estados: EstadoReserva[] = ['pendiente_de_pago', 'pagado_confirmado'];
@@ -184,6 +254,28 @@ const Reservas: React.FC = () => {
         return 'Pendiente de Pago';
       default:
         return 'Pendiente de Pago';
+    }
+  };
+
+  const getOrigenColor = (origen: OrigenReserva) => {
+    switch (origen) {
+      case 'web':
+        return 'bg-blue-100 text-blue-800';
+      case 'local':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getOrigenLabel = (origen: OrigenReserva) => {
+    switch (origen) {
+      case 'web':
+        return 'Web';
+      case 'local':
+        return 'Local';
+      default:
+        return 'Desconocido';
     }
   };
 
@@ -232,6 +324,17 @@ const Reservas: React.FC = () => {
     setReservaSeleccionada(null);
   };
 
+  const aprobarReserva = (reservaId: string) => {
+    setReservas(prevReservas => 
+      prevReservas.map(reserva => 
+        reserva.id === reservaId 
+          ? { ...reserva, estado: 'pagado_confirmado' as EstadoReserva }
+          : reserva
+      )
+    );
+    cerrarModalVer();
+  };
+
   const cerrarModalEditar = () => {
     setModalEditarAbierto(false);
     setReservaSeleccionada(null);
@@ -268,12 +371,32 @@ const Reservas: React.FC = () => {
     const horaFin = parseInt(horaInicio) + duracion;
     const horaFinFormateada = `${horaFin.toString().padStart(2, '0')}:${minutoInicio}`;
     
+    return (
+      <div className="text-slate-600 font-medium">
+        <div className="font-semibold">{fechaFormateada}</div>
+        <div className="text-sm text-slate-500">{hora} - {horaFinFormateada}</div>
+      </div>
+    );
+  };
+
+  const formatFechaHoraLineal = (fecha: string, hora: string, duracion: number) => {
+    const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    // Calcular hora de fin (exactamente en horas)
+    const [horaInicio, minutoInicio] = hora.split(':');
+    const horaFin = parseInt(horaInicio) + duracion;
+    const horaFinFormateada = `${horaFin.toString().padStart(2, '0')}:${minutoInicio}`;
+    
     return `${fechaFormateada} - ${hora} a ${horaFinFormateada}`;
   };
 
 
 
-  const reservasFiltradas = reservas.filter(reserva => {
+  const reservasFiltradas = reservasFiltradasPorLocal.filter(reserva => {
     if (filtros.estado && reserva.estado !== filtros.estado) return false;
     if (filtros.cancha && reserva.cancha !== filtros.cancha) return false;
     if (filtros.fecha && reserva.fecha !== filtros.fecha) return false;
@@ -329,7 +452,26 @@ const Reservas: React.FC = () => {
           </span>
         </div>
         
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+        <div className={`grid grid-cols-1 gap-4 ${CURRENT_USER_ROLE === 'admin' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+          {CURRENT_USER_ROLE === 'admin' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Local
+              </label>
+              <select
+                value={localFiltro}
+                onChange={(e) => setLocalFiltro(e.target.value)}
+                className="input-field py-2 text-sm"
+              >
+                <option value="todos">Todos los Locales</option>
+                {locales.map(local => (
+                  <option key={local.id} value={local.id}>
+                    {local.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Cliente
@@ -435,8 +577,10 @@ const Reservas: React.FC = () => {
                   <th className="table-header">Teléfono</th>
                   <th className="table-header">Fecha y Horario</th>
                   <th className="table-header">Cancha</th>
+                  {CURRENT_USER_ROLE === 'admin' && <th className="table-header">Local</th>}
                   <th className="table-header">Precio</th>
                   <th className="table-header">Estado</th>
+                  <th className="table-header">Origen</th>
                   <th className="table-header">Acciones</th>
                 </tr>
               </thead>
@@ -460,10 +604,22 @@ const Reservas: React.FC = () => {
                     <td className="table-cell">
                       <div className="text-slate-600 font-medium">{reserva.cancha}</div>
                     </td>
+                    {CURRENT_USER_ROLE === 'admin' && (
+                      <td className="table-cell">
+                        <div className="text-slate-600 font-medium">
+                          {locales.find(local => local.id === reserva.localId)?.nombre || 'N/A'}
+                        </div>
+                      </td>
+                    )}
                     <td className="table-cell font-bold text-slate-900">S/ {reserva.precio}</td>
                     <td className="table-cell">
                       <span className={`status-badge ${getEstadoColor(reserva.estado)}`}>
                         {getEstadoLabel(reserva.estado)}
+                      </span>
+                    </td>
+                    <td className="table-cell">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrigenColor(reserva.origen)}`}>
+                        {getOrigenLabel(reserva.origen)}
                       </span>
                     </td>
                     <td className="table-cell">
@@ -613,17 +769,24 @@ const Reservas: React.FC = () => {
                       {reserva.telefono.replace(/-/g, '').startsWith('9') ? reserva.telefono.replace(/-/g, '').slice(0, 9) : '9' + reserva.telefono.replace(/-/g, '').slice(0, 8)}
                     </p>
                     <p className="text-slate-600">{reserva.cancha}</p>
+                    {CURRENT_USER_ROLE === 'admin' && (
+                      <p className="text-slate-600 text-sm">
+                        📍 {locales.find(local => local.id === reserva.localId)?.nombre || 'N/A'}
+                      </p>
+                    )}
                   </div>
-                  <span className={`status-badge ${getEstadoColor(reserva.estado)}`}>
-                    {getEstadoLabel(reserva.estado)}
-                  </span>
+                  <div className="flex flex-col space-y-2">
+                    <span className={`status-badge ${getEstadoColor(reserva.estado)}`}>
+                      {getEstadoLabel(reserva.estado)}
+                    </span>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrigenColor(reserva.origen)}`}>
+                      {getOrigenLabel(reserva.origen)}
+                    </span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 mb-3">
                   <div>
-                    <span className="font-semibold">Fecha:</span> {reserva.fecha}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Hora:</span> {reserva.hora}
+                    <span className="font-semibold">Fecha y Hora:</span> {formatFechaHoraLineal(reserva.fecha, reserva.hora, reserva.duracion)}
                   </div>
                   <div>
                     <span className="font-semibold">Duración:</span> {reserva.duracion}h
@@ -676,6 +839,7 @@ const Reservas: React.FC = () => {
         reserva={reservaSeleccionada}
         abierto={modalVerAbierto}
         onCerrar={cerrarModalVer}
+        onAprobar={aprobarReserva}
         getEstadoColor={getEstadoColor}
         getEstadoLabel={getEstadoLabel}
       />

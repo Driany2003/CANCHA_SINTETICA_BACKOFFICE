@@ -1,6 +1,6 @@
 import React from 'react';
 import { Cliente } from '../types/Cliente';
-import { XIcon, UserIcon, PhoneIcon, MailIcon, CalendarIcon, CurrencyDollarIcon, ClockIcon, StarIcon } from '../components/icons/Icons';
+import { XIcon, UserIcon, PhoneIcon, MailIcon } from '../components/icons/Icons';
 
 interface ModalDetallesClienteProps {
   cliente: Cliente | null;
@@ -40,17 +40,6 @@ const ModalDetallesCliente: React.FC<ModalDetallesClienteProps> = ({
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-slate-900">{cliente.nombre}</h2>
-              <p className="text-slate-600">ID: {cliente.id}</p>
-              <p className="text-slate-600">DNI: {cliente.dni}</p>
-            </div>
-            <div className="text-right">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                cliente.estado === 'activo' 
-                  ? 'bg-green-100 text-green-800 border-green-200' 
-                  : 'bg-red-100 text-red-800 border-red-200'
-              }`}>
-                {cliente.estado === 'activo' ? 'Activo' : 'Inactivo'}
-              </span>
             </div>
           </div>
 
@@ -76,66 +65,6 @@ const ModalDetallesCliente: React.FC<ModalDetallesClienteProps> = ({
               )}
             </div>
           </div>
-
-          {/* Estadísticas */}
-          <div className="bg-slate-50 rounded-lg p-4">
-            <h4 className="text-lg font-semibold text-slate-900 mb-3">Estadísticas</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <CalendarIcon className="h-6 w-6 text-blue-600" />
-                </div>
-                <p className="text-2xl font-bold text-blue-600">{cliente.totalReservas}</p>
-                <p className="text-sm text-slate-600">Total Reservas</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <ClockIcon className="h-6 w-6 text-green-600" />
-                </div>
-                <p className="text-2xl font-bold text-green-600">{cliente.totalHoras}h</p>
-                <p className="text-sm text-slate-600">Total Horas</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <CurrencyDollarIcon className="h-6 w-6 text-purple-600" />
-                </div>
-                <p className="text-2xl font-bold text-purple-600">S/ {cliente.totalGastado}</p>
-                <p className="text-sm text-slate-600">Total Gastado</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Información Adicional */}
-          <div className="bg-slate-50 rounded-lg p-4">
-            <h4 className="text-lg font-semibold text-slate-900 mb-3">Información Adicional</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-slate-700 mb-1">Fecha de Registro</p>
-                <p className="text-slate-900">{cliente.fechaRegistro}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-700 mb-1">Última Reserva</p>
-                <p className="text-slate-900">
-                  {cliente.ultimaReserva || 'Sin reservas'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-700 mb-1">Categoría</p>
-                <div className="flex items-center space-x-2">
-                  <StarIcon className="h-4 w-4 text-yellow-500" />
-                  <span className="text-slate-900 capitalize">{cliente.categoria}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Notas */}
-          {cliente.notas && (
-            <div className="bg-slate-50 rounded-lg p-4">
-              <h4 className="text-lg font-semibold text-slate-900 mb-3">Notas</h4>
-              <p className="text-slate-700">{cliente.notas}</p>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reserva, EstadoReserva } from '../types/Reserva';
+import { XIcon, UserIcon, CalendarIcon, ClockIcon, CurrencyDollarIcon } from '../components/icons/Icons';
 
 interface ModalEditarReservaProps {
   reserva: Reserva | null;
@@ -90,145 +91,149 @@ const ModalEditarReserva: React.FC<ModalEditarReservaProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold">Editar Reserva</h3>
-              <p className="text-sm text-blue-100 mt-1">{reserva.nombreCliente}</p>
-            </div>
-            <button
-              onClick={onCerrar}
-              className="text-white hover:text-blue-100 transition-colors duration-200"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+          <h3 className="text-lg font-semibold text-slate-900">Editar Reserva</h3>
+          <button onClick={onCerrar} className="text-slate-400 hover:text-slate-600 transition-colors duration-200">
+            <XIcon className="h-6 w-6" />
+          </button>
         </div>
 
         {/* Contenido del Modal */}
-        <div className="p-4">
-          <div className="grid grid-cols-1 gap-3">
-            
-            {/* Fecha y Hora */}
-            <div className="bg-slate-50 rounded-lg p-3">
-              <h4 className="font-semibold text-slate-800 mb-2 flex items-center text-xs">
-                <div className="bg-white p-1 rounded-md mr-2 shadow-sm">
-                  <svg className="h-3 w-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 0 002 2z" />
-                  </svg>
-                </div>
-                Fecha y Hora
-              </h4>
-              <div className="grid grid-cols-3 gap-3">
+        <div className="p-6 space-y-6">
+          {/* Información Principal */}
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                <UserIcon className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-slate-900">{reserva.nombreCliente}</h2>
+              <p className="text-slate-600 mt-1">
+                {reserva.telefono} • {reserva.email}
+              </p>
+            </div>
+          </div>
+
+          {/* Formulario */}
+          <form onSubmit={(e) => { e.preventDefault(); guardarCambios(); }}>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h4 className="text-lg font-semibold text-slate-900 mb-4">Información de la Reserva</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Fecha */}
                 <div>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Fecha</p>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Fecha *
+                  </label>
                   <input
                     type="date"
                     value={reservaEditada?.fecha || ''}
                     onChange={(e) => handleInputChange('fecha', e.target.value)}
-                    className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    required
                   />
                 </div>
+
+                {/* Hora */}
                 <div>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Hora Inicio</p>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Hora *
+                  </label>
                   <input
                     type="time"
                     value={reservaEditada?.hora || ''}
                     onChange={(e) => handleInputChange('hora', e.target.value)}
-                    className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    required
                   />
                 </div>
+
+                {/* Duración */}
                 <div>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Duración</p>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Duración *
+                  </label>
                   <select
                     value={reservaEditada?.duracion || 1}
                     onChange={(e) => handleInputChange('duracion', parseInt(e.target.value))}
-                    className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    required
                   >
-                    <option value={1}>1h</option>
-                    <option value={2}>2h</option>
-                    <option value={3}>3h</option>
+                    <option value={1}>1 hora</option>
+                    <option value={2}>2 horas</option>
+                    <option value={3}>3 horas</option>
                   </select>
                 </div>
-              </div>
-            </div>
 
-            {/* Cancha y Estado */}
-            <div className="bg-slate-50 rounded-lg p-3">
-              <h4 className="font-semibold text-slate-800 mb-2 flex items-center text-xs">
-                <div className="bg-white p-1 rounded-md mr-2 shadow-sm">
-                  <svg className="h-3 w-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                Cancha y Estado
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
+                {/* Cancha */}
                 <div>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Cancha</p>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Cancha *
+                  </label>
                   <select
                     value={reservaEditada?.cancha || ''}
                     onChange={(e) => handleInputChange('cancha', e.target.value)}
-                    className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    required
                   >
                     {canchas.map(cancha => (
                       <option key={cancha} value={cancha}>{cancha}</option>
                     ))}
                   </select>
                 </div>
+
+                {/* Estado */}
                 <div>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Estado</p>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Estado *
+                  </label>
                   <select
                     value={reservaEditada?.estado || 'pendiente_de_pago'}
                     onChange={(e) => handleInputChange('estado', e.target.value as EstadoReserva)}
-                    className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    required
                   >
                     {estados.map(estado => (
                       <option key={estado} value={estado}>{getEstadoLabel(estado)}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-            </div>
 
-            {/* Precio Calculado */}
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <h4 className="font-semibold text-blue-800 mb-2 flex items-center text-xs">
-                <div className="bg-white p-1 rounded-md mr-2 shadow-sm">
-                  <svg className="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
+                {/* Precio */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Precio Total
+                  </label>
+                  <div className="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-md text-slate-700">
+                    S/ {calcularPrecioTotal(reservaEditada?.duracion || 1)}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {reservaEditada?.duracion || 1}h × S/ 50
+                  </p>
                 </div>
-                Precio Calculado
-              </h4>
-              <div className="bg-white px-3 py-2 rounded-md border border-blue-200 text-center">
-                <p className="text-sm font-semibold text-blue-700">
-                  💰 {reservaEditada?.duracion || 1}h × S/ 50 = S/ {calcularPrecioTotal(reservaEditada?.duracion || 1)}
-                </p>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Footer con Botones */}
-        <div className="bg-slate-50 px-4 py-3 rounded-b-lg flex justify-end space-x-3">
-          <button
-            onClick={onCerrar}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={guardarCambios}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          >
-            Guardar Cambios
-          </button>
+            {/* Botones */}
+            <div className="flex justify-end space-x-3 pt-6">
+              <button
+                type="button"
+                onClick={onCerrar}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              >
+                Guardar Cambios
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

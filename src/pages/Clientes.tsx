@@ -3,11 +3,9 @@ import { Cliente } from '../types/Cliente';
 import { 
   SearchIcon, 
   UserIcon,
-  EyeIcon,
   EditIcon,
   TrashIcon
 } from '../components/icons/Icons';
-import ModalDetallesCliente from '../components/ModalDetallesCliente';
 import ModalEditarCliente from '../components/ModalEditarCliente';
 import ModalConfirmarEliminarCliente from '../components/ModalConfirmarEliminarCliente';
 
@@ -15,7 +13,6 @@ const Clientes: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [clientesFiltrados, setClientesFiltrados] = useState<Cliente[]>([]);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
-  const [modalDetallesAbierto, setModalDetallesAbierto] = useState(false);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
   
@@ -34,7 +31,7 @@ const Clientes: React.FC = () => {
         id: '1',
         dni: '12345678',
         nombre: 'Carlos Mendoza',
-        telefono: '987-654-321',
+        telefono: '987654321',
         email: 'carlos@email.com',
         fechaRegistro: '2024-01-15',
         totalReservas: 12,
@@ -50,7 +47,7 @@ const Clientes: React.FC = () => {
         id: '2',
         dni: '23456789',
         nombre: 'Ana García',
-        telefono: '987-123-456',
+        telefono: '987123456',
         email: 'ana@email.com',
         fechaRegistro: '2024-02-01',
         totalReservas: 8,
@@ -66,7 +63,7 @@ const Clientes: React.FC = () => {
         id: '3',
         dni: '34567890',
         nombre: 'Luis Torres',
-        telefono: '987-789-123',
+        telefono: '987789123',
         email: 'luis@email.com',
         fechaRegistro: '2024-01-20',
         totalReservas: 20,
@@ -82,7 +79,7 @@ const Clientes: React.FC = () => {
         id: '4',
         dni: '45678901',
         nombre: 'María López',
-        telefono: '987-456-789',
+        telefono: '987456789',
         email: 'maria@email.com',
         fechaRegistro: '2024-02-10',
         totalReservas: 5,
@@ -98,7 +95,7 @@ const Clientes: React.FC = () => {
         id: '5',
         dni: '56789012',
         nombre: 'Roberto Silva',
-        telefono: '987-321-654',
+        telefono: '987321654',
         email: 'roberto@email.com',
         fechaRegistro: '2024-01-05',
         totalReservas: 15,
@@ -168,15 +165,6 @@ const Clientes: React.FC = () => {
     }
   }, [clientes, clientesFiltrados.length]);
 
-  const abrirModalDetalles = (cliente: Cliente) => {
-    setClienteSeleccionado(cliente);
-    setModalDetallesAbierto(true);
-  };
-
-  const cerrarModalDetalles = () => {
-    setModalDetallesAbierto(false);
-    setClienteSeleccionado(null);
-  };
 
   const abrirModalEditar = (cliente: Cliente) => {
     setClienteSeleccionado(cliente);
@@ -241,101 +229,104 @@ const Clientes: React.FC = () => {
   const irAUltimaPagina = () => setPaginaActual(totalPaginas);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-8 px-8 py-8">
+      {/* Header */}
+      <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-start md:space-y-0">
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-slate-900">Gestión de Clientes</h1>
+          <p className="text-slate-600 mt-1">
+            Control y fidelización de clientes del sistema
+          </p>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="card">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-slate-900">Filtros</h2>
+        </div>
         
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold gradient-text">Gestión de Clientes</h1>
-              <p className="text-slate-600 mt-2">
-                Control y fidelización de clientes del sistema
-              </p>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Buscar
+            </label>
+            <div className="relative">
+              <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={filtros.nombre}
+                onChange={(e) => handleFiltroChange('nombre', e.target.value)}
+                className="input-field pl-8 py-2 text-sm"
+                placeholder="Nombre del cliente..."
+              />
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">{clientes.length}</p>
-                  <p className="text-xs text-slate-500">Total Clientes</p>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">
-                    {clientes.filter(c => c.estado === 'activo').length}
-                  </p>
-                  <p className="text-xs text-slate-500">Clientes Activos</p>
-                </div>
-              </div>
-            </div>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Estado
+            </label>
+            <select
+              value={filtros.estado}
+              onChange={(e) => handleFiltroChange('estado', e.target.value)}
+              className="input-field py-2 text-sm"
+            >
+              <option value="">Todos los estados</option>
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Buscar por nombre
-              </label>
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={filtros.nombre}
-                  onChange={(e) => handleFiltroChange('nombre', e.target.value)}
-                  placeholder="Nombre del cliente..."
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
+        <div className="mt-6 pt-6 border-t border-slate-200">
+          <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-y-0">
+            <div className="text-sm text-slate-600">
+              <span className="font-medium">Tip:</span> Filtra por nombre, estado y más criterios
             </div>
-            
-
-            
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Estado
-              </label>
-              <select
-                value={filtros.estado}
-                onChange={(e) => handleFiltroChange('estado', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Todos los estados</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-              </select>
-            </div>
-            
-            <div className="flex items-end">
+            <div className="flex space-x-2">
               <button
                 onClick={limpiarFiltros}
-                className="px-4 py-2 text-slate-600 border border-slate-300 rounded-md hover:bg-slate-50 transition-colors duration-200"
+                className="btn-secondary flex items-center justify-center px-3 py-1 text-sm"
               >
                 Limpiar
               </button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabla de Clientes */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
+      {/* Tabla de Clientes */}
+      <div className="card">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0 mb-8">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-slate-900">Lista de Clientes</h2>
+          </div>
+          <div className="flex-shrink-0 lg:ml-6">
+            <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
+              {clientesFiltrados.length} cliente{clientesFiltrados.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-hidden">
+          {/* Tabla para desktop */}
+          <div className="hidden md:block">
+            <table className="min-w-full divide-y divide-green-200">
+              <thead>
                 <tr>
-                  <th className="table-header text-center">Cliente</th>
-                  <th className="table-header text-center">Contacto</th>
-                  <th className="table-header text-center">Estadísticas</th>
-                  <th className="table-header text-center">Estado</th>
-                  <th className="table-header text-center">Última Reserva</th>
-                  <th className="table-header text-center">Acciones</th>
+                  <th className="table-header">Cliente</th>
+                  <th className="table-header">Contacto</th>
+                  <th className="table-header">Estadísticas</th>
+                  <th className="table-header">Estado</th>
+                  <th className="table-header">Última Reserva</th>
+                  <th className="table-header">Fecha Registro</th>
+                  <th className="table-header">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
+              <tbody className="bg-white divide-y divide-green-200">
                 {clientesPaginados.map((cliente) => (
-                  <tr key={cliente.id} className="hover:bg-slate-50 transition-colors duration-200">
+                  <tr key={cliente.id} className="table-row">
                     <td className="table-cell">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -345,7 +336,6 @@ const Clientes: React.FC = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-slate-900">{cliente.nombre}</div>
-                          <div className="text-sm text-slate-500">ID: {cliente.id}</div>
                         </div>
                       </div>
                     </td>
@@ -399,14 +389,13 @@ const Clientes: React.FC = () => {
                     </td>
                     
                     <td className="table-cell">
+                      <div className="text-slate-600 font-medium">
+                        {new Date(cliente.fechaRegistro).toLocaleDateString('es-ES')}
+                      </div>
+                    </td>
+                    
+                    <td className="table-cell">
                       <div className="flex items-center justify-center space-x-2">
-                        <button 
-                          onClick={() => abrirModalDetalles(cliente)}
-                          className="inline-flex items-center justify-center p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-all duration-200"
-                          title="Ver detalles"
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                        </button>
                         <button 
                           onClick={() => abrirModalEditar(cliente)}
                           className="inline-flex items-center justify-center p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-full transition-all duration-200"
@@ -428,10 +417,11 @@ const Clientes: React.FC = () => {
               </tbody>
             </table>
           </div>
+        </div>
 
-          {/* Controles de Paginación */}
-          {totalPaginas > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
+        {/* Controles de Paginación */}
+        {totalPaginas > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
               <div className="flex items-center text-sm text-slate-700">
                 <span>
                   Mostrando {inicioIndice + 1} a {Math.min(finIndice, clientesFiltrados.length)} de {clientesFiltrados.length} clientes
@@ -516,12 +506,11 @@ const Clientes: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
 
         {/* Cards para móvil */}
         <div className="md:hidden space-y-4 mt-6">
           {clientesPaginados.map((cliente) => (
-            <div key={cliente.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div key={cliente.id} className="card-hover">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-semibold text-slate-900 text-lg">{cliente.nombre}</h3>
@@ -552,13 +541,6 @@ const Clientes: React.FC = () => {
               
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
                 <button 
-                  onClick={() => abrirModalDetalles(cliente)}
-                  className="inline-flex items-center justify-center p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-all duration-200"
-                  title="Ver detalles"
-                >
-                  <EyeIcon className="h-4 w-4" />
-                </button>
-                <button 
                   onClick={() => abrirModalEditar(cliente)}
                   className="inline-flex items-center justify-center p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-full transition-all duration-200"
                   title="Editar cliente"
@@ -579,12 +561,6 @@ const Clientes: React.FC = () => {
       </div>
 
       {/* Modales */}
-      <ModalDetallesCliente
-        cliente={clienteSeleccionado}
-        abierto={modalDetallesAbierto}
-        onCerrar={cerrarModalDetalles}
-      />
-      
       <ModalEditarCliente
         cliente={clienteSeleccionado}
         abierto={modalEditarAbierto}

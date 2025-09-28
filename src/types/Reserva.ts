@@ -11,6 +11,8 @@ export interface Reserva {
   precio: number;
   metodoPago: MetodoPago;
   fechaCreacion: string;
+  origen: OrigenReserva;
+  localId: string;
   notas?: string;
 }
 
@@ -24,13 +26,8 @@ export type MetodoPago =
   | 'yape'
   | 'plin';
 
-export interface Cancha {
-  id: string;
-  nombre: string;
-  tipo: string;
-  precioHora: number;
-  disponible: boolean;
-}
+export type OrigenReserva = 'web' | 'local';
+
 
 export interface Horario {
   hora: string;
