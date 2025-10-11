@@ -12,7 +12,7 @@ import {
   ReportesIcon,
   EmpresaIcon
 } from '../icons/Icons';
-import { CURRENT_USER_ROLE, MENU_ITEMS_BY_ROLE, UserRole } from '../../config/userConfig';
+import { CURRENT_USER_ROLE, MENU_ITEMS_BY_ROLE } from '../../config/userConfig';
 import ModalConfirmarLogout from '../ModalConfirmarLogout';
 
 interface SidebarProps {

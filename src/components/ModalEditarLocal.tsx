@@ -59,7 +59,7 @@ const ModalEditarLocal: React.FC<ModalEditarLocalProps> = ({ abierto, onCerrar, 
 
     if (!formData.telefono.trim()) {
       nuevosErrores.telefono = 'El teléfono es requerido';
-    } else if (!/^[0-9\s\-\(\)]+$/.test(formData.telefono)) {
+    } else if (!/^[0-9\s\-()]+$/.test(formData.telefono)) {
       nuevosErrores.telefono = 'El teléfono solo puede contener números, espacios, guiones y paréntesis';
     }
 

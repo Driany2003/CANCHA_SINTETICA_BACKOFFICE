@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reserva, EstadoReserva } from '../types/Reserva';
-import { XIcon, UserIcon, CalendarIcon, ClockIcon, CurrencyDollarIcon } from '../components/icons/Icons';
+import { XIcon, UserIcon } from '../components/icons/Icons';
 
 interface ModalEditarReservaProps {
   reserva: Reserva | null;
@@ -29,11 +29,12 @@ const ModalEditarReserva: React.FC<ModalEditarReservaProps> = ({
     }
   }, [reserva]);
 
-  const calcularHoraFin = (horaInicio: string, duracion: number): string => {
-    const [hora, minuto] = horaInicio.split(':').map(Number);
-    const horaFin = hora + duracion;
-    return `${horaFin.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
-  };
+  // Función para calcular hora fin (comentada porque no se usa actualmente)
+  // const calcularHoraFin = (horaInicio: string, duracion: number): string => {
+  //   const [hora, minuto] = horaInicio.split(':').map(Number);
+  //   const horaFin = hora + duracion;
+  //   return `${horaFin.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
+  // };
 
   const calcularPrecioTotal = (duracion: number): number => {
     return duracion * 50;

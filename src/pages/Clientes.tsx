@@ -156,6 +156,7 @@ const Clientes: React.FC = () => {
   // Aplicar filtros automáticamente cuando cambien
   useEffect(() => {
     aplicarFiltros();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtros]);
 
   // Inicializar clientesFiltrados con todos los clientes al cargar

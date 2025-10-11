@@ -1,5 +1,5 @@
 import React from 'react';
-import { XIcon, LogoutIcon } from './icons/Icons';
+import { LogoutIcon } from './icons/Icons';
 
 interface ModalConfirmarLogoutProps {
   abierto: boolean;

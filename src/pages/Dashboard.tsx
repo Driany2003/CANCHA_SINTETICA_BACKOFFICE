@@ -221,13 +221,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const formatFecha = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
+  // Función para formatear fecha (comentada porque no se usa actualmente)
+  // const formatFecha = (fecha: string) => {
+  //   return new Date(fecha).toLocaleDateString('es-ES', {
+  //     day: '2-digit',
+  //     month: '2-digit',
+  //     year: 'numeric'
+  //   });
+  // };
 
     const formatFechaHora = (fecha: string, hora: string, duracion: number) => {
     const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', { 

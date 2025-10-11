@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  DollarSignIcon,
-  UsersIcon,
   DownloadIcon,
   ChartIcon,
   MapPinIcon,
   BuildingOfficeIcon
 } from '../components/icons/Icons';
-import { Cancha, Local } from '../types/Empresa';
+import { Local } from '../types/Empresa';
 import { Reserva, EstadoReserva, OrigenReserva } from '../types/Reserva';
 
 const Reportes: React.FC = () => {
@@ -16,7 +14,7 @@ const Reportes: React.FC = () => {
   const [vistaDetallada, setVistaDetallada] = useState(false);
 
   // Datos históricos de reservas para análisis semanal y mensual
-  const todasLasReservas: Reserva[] = [
+  const todasLasReservas: Reserva[] = useMemo(() => [
     // Enero 2024 - Semana 1
     {
       id: '1',
@@ -332,10 +330,10 @@ const Reportes: React.FC = () => {
       localId: '1',
       notas: 'Partido nocturno'
     }
-  ];
+  ], []);
 
   // ID del dueño actual (en un sistema real esto vendría de la autenticación)
-  const empresaActualId = 'empresa_1';
+  // const empresaActualId = 'empresa_1'; // No usado actualmente
 
   // Datos de ejemplo de locales
   const locales: Local[] = [
@@ -594,7 +592,7 @@ const Reportes: React.FC = () => {
       porcentajeComisionRaki: ingresosBrutos > 0 ? (totalComisionesRaki / ingresosBrutos) * 100 : 0,
       porcentajeIGV: ingresosNetos > 0 ? (igvPorPagar / ingresosNetos) * 100 : 0
     };
-  }, [todasLasReservas, localSeleccionado, filtroActivo]);
+  }, [todasLasReservas, localSeleccionado]);
 
 
 

@@ -235,16 +235,17 @@ const Reservas: React.FC = () => {
     }
   };
 
-  const getEstadoIcon = (estado: EstadoReserva) => {
-    switch (estado) {
-      case 'pagado_confirmado':
-        return '✅';
-      case 'pendiente_de_pago':
-        return '💰';
-      default:
-        return '💰';
-    }
-  };
+  // Función para obtener icono de estado (comentada porque no se usa actualmente)
+  // const getEstadoIcon = (estado: EstadoReserva) => {
+  //   switch (estado) {
+  //     case 'pagado_confirmado':
+  //       return '✅';
+  //     case 'pendiente_de_pago':
+  //       return '💰';
+  //     default:
+  //       return '💰';
+  //   }
+  // };
 
   const getEstadoLabel = (estado: EstadoReserva) => {
     switch (estado) {

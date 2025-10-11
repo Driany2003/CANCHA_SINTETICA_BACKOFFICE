@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  PlusIcon,
   PhoneIcon,
   EnvelopeIcon,
   ClockIcon,
@@ -30,7 +29,7 @@ const NuevaReserva: React.FC = () => {
   const canchas = ['Cancha 1', 'Cancha 2', 'Cancha 3'];
   const horarios = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
   const [horariosSeleccionados, setHorariosSeleccionados] = useState<string[]>([]);
-  const [tipoHorario, setTipoHorario] = useState<'dia' | 'noche'>('dia');
+  // const [tipoHorario, setTipoHorario] = useState<'dia' | 'noche'>('dia'); // No usado actualmente
 
   const handleInputChange = (field: keyof Reserva, value: any) => {
     setFormData(prev => {
@@ -49,11 +48,12 @@ const NuevaReserva: React.FC = () => {
     });
   };
 
-  const calcularPrecio = () => {
-    const precioBase = 60;
-    const precioTotal = precioBase * (formData.duracion || 1);
-    setFormData(prev => ({ ...prev, precio: precioTotal }));
-  };
+  // Función para calcular precio (comentada porque no se usa actualmente)
+  // const calcularPrecio = () => {
+  //   const precioBase = 60;
+  //   const precioTotal = precioBase * (formData.duracion || 1);
+  //   setFormData(prev => ({ ...prev, precio: precioTotal }));
+  // };
 
   const limpiarFormulario = () => {
     setFormData({

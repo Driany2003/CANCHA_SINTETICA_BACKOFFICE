@@ -148,7 +148,7 @@ const Canchas: React.FC = () => {
 
   // Filtrar canchas con todos los criterios
   const canchasFiltradas = canchas.filter(cancha => {
-    const local = todosLosLocales.find(l => l.id === cancha.localId);
+    // const local = todosLosLocales.find(l => l.id === cancha.localId); // No usado actualmente
     
     // Filtro por búsqueda (nombre de cancha)
     const cumpleBusqueda = cancha.nombre.toLowerCase().includes(filtros.busqueda.toLowerCase());

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Cliente } from '../types/Cliente';
-import { XIcon, UserIcon, PhoneIcon, MailIcon } from '../components/icons/Icons';
+import { XIcon, UserIcon } from '../components/icons/Icons';
 
 interface ModalEditarClienteProps {
   cliente: Cliente | null;
