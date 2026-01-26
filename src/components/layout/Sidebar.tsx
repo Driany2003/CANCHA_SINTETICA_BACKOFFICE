@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
             <button
               onClick={() => setExpanded((curr: boolean) => !curr)}
-              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              className="pt-5 p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
               title={expanded ? "Contraer sidebar" : "Expandir sidebar"}
             >
               <ChevronFirst
@@ -198,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           expanded ? "lg:w-72" : "lg:w-20"
         }`}
       >
-        <div className="flex flex-col flex-grow pt-4">
+        <div className="flex flex-col flex-grow">
           <SidebarContent expanded={expanded} setExpanded={setExpanded}>
             {menuItems.map((item) => (
               <li key={item.path}>
