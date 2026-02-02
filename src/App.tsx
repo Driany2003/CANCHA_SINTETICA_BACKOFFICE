@@ -43,7 +43,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-white">
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
@@ -54,13 +54,13 @@ function App() {
         {/* Contenido principal */}
         <div
           className={`transition-all duration-300 ${
-            expanded ? "lg:pl-72" : "lg:pl-20"
+            expanded ? "lg:pl-64" : "lg:pl-19-2"
           }`}
         >
           <Header setSidebarOpen={setSidebarOpen} />
 
           {/* Contenido de la página */}
-          <main className="p-6">
+          <main className=" pl-40 pr-40">
             <Routes>
               {/* Rutas protegidas por rol */}
               <Route

@@ -1,6 +1,6 @@
-import React from 'react';
-import { BarsIcon, UserIcon } from '../icons/Icons';
-import { CURRENT_USER_ROLE } from '../../config/userConfig';
+import React from "react";
+import { BarsIcon, UserIcon } from "../icons/Icons";
+import { CURRENT_USER_ROLE } from "../../config/userConfig";
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
@@ -9,10 +9,10 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   // Información del usuario actual (simulada)
   const usuarioActual = {
-    nombre: CURRENT_USER_ROLE === 'admin' ? 'Roberto Silva' : 'Patricia Morales',
-    rol: CURRENT_USER_ROLE === 'admin' ? 'Administrador' : 'Trabajador'
+    nombre:
+      CURRENT_USER_ROLE === "admin" ? "Roberto Silva" : "Patricia Morales",
+    rol: CURRENT_USER_ROLE === "admin" ? "Administrador" : "Trabajador",
   };
-
 
   return (
     <>
@@ -25,12 +25,14 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
         >
           <BarsIcon className="h-6 w-6" />
         </button>
-        
+
         {/* Información del usuario */}
         <div className="flex-1 flex items-center justify-end">
           <div className="flex items-center space-x-3">
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-900">{usuarioActual.nombre}</p>
+              <p className="text-sm font-semibold text-slate-900">
+                {usuarioActual.nombre}
+              </p>
               <p className="text-xs text-slate-500">{usuarioActual.rol}</p>
             </div>
             <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
@@ -45,8 +47,12 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
         {/* Información del usuario */}
         <div className="flex items-center space-x-4">
           <div>
-            <p className="text-lg font-semibold text-slate-900 text-right">{usuarioActual.nombre}</p>
-            <p className="text-sm text-slate-500 text-right">{usuarioActual.rol}</p>
+            <p className="text-lg font-semibold text-slate-900 text-right">
+              {usuarioActual.nombre}
+            </p>
+            <p className="text-sm text-slate-500 text-right">
+              {usuarioActual.rol}
+            </p>
           </div>
           <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
             <UserIcon className="h-5 w-5 text-green-600" />
