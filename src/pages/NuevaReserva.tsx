@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Info } from 'lucide-react';
 import { 
   PhoneIcon,
   EnvelopeIcon,
@@ -23,13 +24,20 @@ const NuevaReserva: React.FC = () => {
     estado: 'pendiente_de_pago' as EstadoReserva,
     precio: 0,
     metodoPago: 'efectivo' as MetodoPago,
-    notas: ''
+    notas: '',
+    localId: ''
   });
 
+  const locales = [
+    { id: '1', nombre: 'Complejo de Fútbol Norte' },
+    { id: '2', nombre: 'Centro de Fútbol Sur' },
+    { id: '3', nombre: 'Estadio de Fútbol Este' }
+  ];
   const canchas = ['Cancha 1', 'Cancha 2', 'Cancha 3'];
   const horarios = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
   const [horariosSeleccionados, setHorariosSeleccionados] = useState<string[]>([]);
-  // const [tipoHorario, setTipoHorario] = useState<'dia' | 'noche'>('dia'); // No usado actualmente
+  type TipoTarifa = 'hora' | 'dia' | 'noche';
+  const [tipoTarifa, setTipoTarifa] = useState<TipoTarifa>('hora');
 
   const handleInputChange = (field: keyof Reserva, value: any) => {
     setFormData(prev => {
@@ -67,9 +75,11 @@ const NuevaReserva: React.FC = () => {
       estado: 'pendiente_de_pago' as EstadoReserva,
       precio: 0,
       metodoPago: 'efectivo' as MetodoPago,
-      notas: ''
+      notas: '',
+      localId: ''
     });
     setHorariosSeleccionados([]);
+    setTipoTarifa('hora');
     setCurrentStep(1);
   };
 
@@ -157,71 +167,66 @@ const NuevaReserva: React.FC = () => {
       case 1:
   return (
     <div className="space-y-8">
-            {/* Información del Campo y Configuración de Reserva en Fila */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Información del Campo */}
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200 shadow-lg">
-                <div className="mb-3">
-                  <div className="mb-3">
-                    <h3 className="text-[18px] font-bold text-slate-900 whitespace-nowrap">Campo Deportivo Central</h3>
-                    <p className="text-slate-600 flex items-center mt-1">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                      San Miguel, Lima
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-center mt-6">
-                    <div className="text-center">
-                      <div className="text-xs text-slate-600 font-medium mb-2">por hora</div>
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <div className="text-2xl font-bold text-green-600">S/ 45</div>
-                          <div className="text-xs text-slate-500">Día</div>
-                        </div>
-                        <div className="text-slate-400">|</div>
-                        <div>
-                          <div className="text-2xl font-bold text-green-600">S/ 60</div>
-                          <div className="text-xs text-slate-500">Noche</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Local y Cancha en fila */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-base font-semibold text-slate-700 mb-2">Local</label>
+                <select
+                  value={formData.localId ?? ''}
+                  onChange={(e) => handleInputChange('localId', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base"
+                >
+                  <option value="">Seleccionar local</option>
+                  {locales.map(loc => (
+                    <option key={loc.id} value={loc.id}>{loc.nombre}</option>
+                  ))}
+                </select>
               </div>
-
-                            {/* Configuración de Reserva */}
-              <div className="bg-white rounded-xl p-2 border border-slate-200 lg:col-span-2">
-                <h4 className="text-sm font-semibold text-slate-900 mb-2">Configuración de Reserva</h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Cancha</label>
-                    <select
-                      required
-                      value={formData.cancha}
-                      onChange={(e) => handleInputChange('cancha', e.target.value)}
-                      className="w-full px-2 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                    >
-                      <option value="">Seleccionar cancha</option>
-                      {canchas.map(cancha => (
-                        <option key={cancha} value={cancha}>{cancha}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Fecha</label>
-                    <input
-                      type="date"
-                      required
-                      min={new Date().toISOString().split('T')[0]}
-                      value={formData.fecha}
-                      onChange={(e) => handleInputChange('fecha', e.target.value)}
-                      className="w-full px-2 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-base font-semibold text-slate-700 mb-2">Cancha</label>
+                <select
+                  required
+                  value={formData.cancha}
+                  onChange={(e) => handleInputChange('cancha', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base"
+                >
+                  <option value="">Seleccionar cancha</option>
+                  {canchas.map(cancha => (
+                    <option key={cancha} value={cancha}>{cancha}</option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            {/* Fecha y Tarifa en la misma fila (como Local y Cancha) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-base font-semibold text-slate-700 mb-2">Fecha</label>
+                <input
+                  type="date"
+                  required
+                  min={new Date().toISOString().split('T')[0]}
+                  value={formData.fecha}
+                  onChange={(e) => handleInputChange('fecha', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-base font-semibold text-slate-700 mb-2">Tarifa por hora</label>
+                <select
+                  value={tipoTarifa}
+                  onChange={(e) => setTipoTarifa(e.target.value as TipoTarifa)}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base"
+                >
+                  <option value="hora">Por hora</option>
+                  <option value="dia">Día - S/ 45</option>
+                  <option value="noche">Noche - S/ 60</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Línea separadora (hasta los bordes del card) */}
+            <div className="border-t border-gray-200 my-6 -mx-6 sm:-mx-8 px-6 sm:px-8" />
 
             {/* Horarios Disponibles */}
             <div className="bg-white rounded-xl p-4 border border-slate-200">
@@ -243,12 +248,10 @@ const NuevaReserva: React.FC = () => {
                 ))}
               </div>
               
-              <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-xs text-green-800">
-                  <span className="font-semibold">Selecciona horarios:</span> Haz clic en los horarios disponibles para seleccionar tu turno. Recuerda que deben ser consecutivos.
-                </p>
-                <p className="text-xs text-green-700 mt-1">
-                  <span className="font-semibold">Precios:</span> Día (antes de 18:00): S/ 45 | Noche (18:00 en adelante): S/ 60
+              <div className="mt-3 flex items-center gap-2">
+                <Info className="h-5 w-5 shrink-0 text-slate-500" />
+                <p className="text-sm text-slate-600">
+                  Haz clic en los horarios disponibles para seleccionar tu turno. Recuerda que deben ser consecutivos.
                 </p>
               </div>
             </div>
@@ -594,17 +597,17 @@ const NuevaReserva: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header */}
-        <div className="mb-8">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Título fuera del card */}
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-900">Nueva Reserva</h1>
-          <p className="text-slate-600 mt-2">Crea una nueva reserva para generar ingresos</p>
         </div>
 
+        {/* Card mayor: envuelve el resto del contenido */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-6 sm:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
         {/* Barra de Progreso */}
-        <div className="bg-white rounded-xl p-6 border border-slate-200 mb-8">
+        <div className="mb-6 pb-4 border-b border-gray-200 -mx-6 sm:-mx-8 px-6 sm:px-8">
           <div className="flex items-center justify-between">
                         <div className={`flex items-center space-x-3 ${currentStep >= 1 ? 'text-green-600' : 'text-slate-400'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -647,7 +650,7 @@ const NuevaReserva: React.FC = () => {
         {renderStepContent()}
 
         {/* Botones de Navegación */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 -mx-6 sm:-mx-8 px-6 sm:px-8">
           {currentStep > 1 && (
             <button
               type="button"
@@ -697,6 +700,7 @@ const NuevaReserva: React.FC = () => {
               </button>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>

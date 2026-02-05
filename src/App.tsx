@@ -43,7 +43,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50">
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
@@ -60,7 +60,7 @@ function App() {
           <Header setSidebarOpen={setSidebarOpen} />
 
           {/* Contenido de la página */}
-          <main className=" pl-40 pr-40">
+          <main className=" ml-40 mr-32">
             <Routes>
               {/* Rutas protegidas por rol */}
               <Route

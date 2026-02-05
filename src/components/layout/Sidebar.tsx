@@ -150,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setExpanded,
   }: SidebarContentProps) => {
     return (
-      <aside className="h-screen">
+      <aside className="h-screen bg-white">
         <nav className="h-full flex flex-col border-r border-gray-200">
           {/* Header con logo */}
           <div className="p-4 pt-5 pb-5">

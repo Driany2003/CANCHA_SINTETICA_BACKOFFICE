@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Calendar, DollarSign, Users, Percent } from "lucide-react";
 
 import { Reserva, EstadoReserva, OrigenReserva } from "../types/Reserva";
 
@@ -176,40 +177,48 @@ const Dashboard: React.FC = () => {
       titulo: "Total Reservas",
       valor: totalReservas.toString(),
       cambio: "+12%",
-      color: "from-green-500 to-emerald-600",
-      icono: "📅",
+      cambioPositivo: true,
+      Icono: Calendar,
+      iconoBg: "bg-blue-100",
+      iconoColor: "text-blue-600",
     },
     {
       titulo: "Ingresos Confirmados",
       valor: `S/ ${ingresosTotales.toLocaleString()}`,
       cambio: "+18%",
-      color: "from-green-600 to-emerald-700",
-      icono: "💰",
+      cambioPositivo: true,
+      Icono: DollarSign,
+      iconoBg: "bg-emerald-100",
+      iconoColor: "text-emerald-600",
     },
     {
       titulo: "Clientes Únicos",
       valor: clientesUnicos.toString(),
       cambio: "+8%",
-      color: "from-emerald-500 to-teal-600",
-      icono: "👥",
+      cambioPositivo: true,
+      Icono: Users,
+      iconoBg: "bg-violet-100",
+      iconoColor: "text-violet-600",
     },
     {
       titulo: "Reservas Pagadas",
       valor: `${Math.round((reservasPagadas / totalReservas) * 100)}%`,
       cambio: "+5%",
-      color: "from-green-500 to-emerald-600",
-      icono: "⚽",
+      cambioPositivo: true,
+      Icono: Percent,
+      iconoBg: "bg-amber-100",
+      iconoColor: "text-amber-600",
     },
   ];
 
   const getEstadoColor = (estado: EstadoReserva) => {
     switch (estado) {
       case "pagado_confirmado":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-100 text-emerald-600 font-bold";
       case "pendiente_de_pago":
-        return "bg-orange-100 text-orange-800";
+        return "bg-amber-100 text-amber-600 font-bold";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-red-100 text-red-600 font-bold";
     }
   };
 
@@ -223,6 +232,23 @@ const Dashboard: React.FC = () => {
         return "Desconocido";
     }
   };
+
+  const getIniciales = (nombre: string) => {
+    const partes = nombre.trim().split(/\s+/);
+    if (partes.length >= 2) {
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+    return nombre.slice(0, 2).toUpperCase();
+  };
+
+  const AVATAR_COLORS = [
+    "bg-rose-400",
+    "bg-amber-400",
+    "bg-orange-400",
+    "bg-violet-400",
+    "bg-emerald-400",
+    "bg-sky-400",
+  ];
 
   // Función para formatear fecha (comentada porque no se usa actualmente)
   // const formatFecha = (fecha: string) => {
@@ -257,117 +283,145 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8 px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col space-y-6 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-lg text-slate-600 mt-3">
-            Bienvenido al panel de control de Cancha Sintética
-          </p>
+      {/* Card exterior: envuelve todo (título + card interior) */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+        </div>
+
+        {/* Card interior: envuelve solo las 4 métricas */}
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+          {estadisticas.map((stat, index) => {
+            const IconComponent = stat.Icono;
+            return (
+              <div
+                key={index}
+                className="py-6 px-6 first:pt-0 sm:first:pt-6 last:pb-0 sm:last:pb-6 flex items-stretch gap-4"
+              >
+                {/* Icono grande a la izquierda */}
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${stat.iconoBg} ${stat.iconoColor}`}>
+                  <IconComponent className="h-8 w-8" strokeWidth={2} />
+                </div>
+                {/* Contenido a la derecha: valor, etiqueta y badge */}
+                <div className="flex flex-col justify-center min-w-0">
+                  <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    {stat.valor}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <p className="text-sm font-medium text-slate-500">
+                      {stat.titulo}
+                    </p>
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        stat.cambioPositivo
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {stat.cambio}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          </div>
         </div>
       </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {estadisticas.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className="flex items-center space-x-4">
-              <div className={`stat-icon bg-gradient-to-br ${stat.color}`}>
-                <span className="text-3xl">{stat.icono}</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-600 mb-1">
-                  {stat.titulo}
-                </p>
-                <p className="text-3xl font-bold text-slate-900 mb-1">
-                  {stat.valor}
-                </p>
-                <p className="text-sm font-medium text-green-600">
-                  {stat.cambio}
-                </p>
-              </div>
+      {/* Reservas Recientes - estilo Recent Invoices */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="px-6 pt-6 pb-4 sm:px-8 sm:pt-4 sm:pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Reservas Recientes
+              </h2>
             </div>
+            <Link
+              to="/reservas"
+              className="inline-flex items-center justify-center shrink-0 bg-white border border-slate-200 text-slate-700 font-medium py-2.5 px-5 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
+            >
+              Ver todas
+            </Link>
           </div>
-        ))}
-      </div>
-
-      {/* Reservas Recientes */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              Reservas Recientes
-            </h2>
-            <p className="text-slate-600">Últimas reservas del sistema</p>
-          </div>
-          <Link
-            to="/reservas"
-            className="btn-outline flex items-center justify-center"
-          >
-            Ver todas
-          </Link>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-x-auto">
           {/* Tabla para desktop */}
           <div className="hidden md:block">
-            <table className="min-w-full divide-y-2 divide-gray-200">
+            <table className="min-w-full border-collapse">
               <thead>
-                <tr>
-                  <th className="table-header">Cliente</th>
-                  <th className="table-header">Teléfono</th>
-                  <th className="table-header">Fecha y Horario</th>
-                  <th className="table-header">Cancha</th>
-                  <th className="table-header">Local</th>
-                  <th className="table-header">Precio</th>
-                  <th className="table-header">Estado</th>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Cliente
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Teléfono
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Fecha y Horario
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Cancha
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Local
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Precio
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                    Estado
+                  </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y-2 divide-gray-100">
-                {reservasRecientes.map((reserva) => (
-                  <tr key={reserva.id} className="table-row">
-                    <td className="table-cell">
-                      <div>
-                        <div className="font-semibold text-slate-900">
-                          {reserva.nombreCliente}
+              <tbody className="bg-white">
+                {reservasRecientes.map((reserva, index) => (
+                  <tr
+                    key={reserva.id}
+                    className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50/50 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${AVATAR_COLORS[index % AVATAR_COLORS.length]}`}
+                        >
+                          {getIniciales(reserva.nombreCliente)}
                         </div>
-                        <div className="text-xs text-slate-500">
-                          {reserva.email}
+                        <div>
+                          <div className="text-sm font-bold text-gray-900">
+                            {reserva.nombreCliente}
+                          </div>
+                          <div className="text-gray-500 text-sm mt-0.5">
+                            {reserva.email}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="table-cell">
-                      <div className="text-slate-600 font-medium">
-                        {reserva.telefono}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {reserva.telefono}
                     </td>
-                    <td className="table-cell">
-                      <div className="text-slate-600 font-medium">
-                        {formatFechaHora(
-                          reserva.fecha,
-                          reserva.hora,
-                          reserva.duracion,
-                        )}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatFechaHora(
+                        reserva.fecha,
+                        reserva.hora,
+                        reserva.duracion,
+                      )}
                     </td>
-                    <td className="table-cell">
-                      <div className="text-slate-600 font-medium">
-                        {reserva.cancha}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {reserva.cancha}
                     </td>
-                    <td className="table-cell">
-                      <div className="text-slate-600 font-medium">
-                        {getNombreLocal(reserva.localId)}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {getNombreLocal(reserva.localId)}
                     </td>
-                    <td className="table-cell">
-                      <div className="font-bold text-slate-900 text-lg">
-                        S/ {reserva.precio}
-                      </div>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      S/ {reserva.precio}
                     </td>
-                    <td className="table-cell">
+                    <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(reserva.estado)}`}
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs ${getEstadoColor(reserva.estado)}`}
                       >
                         {getEstadoLabel(reserva.estado)}
                       </span>
@@ -379,37 +433,44 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Cards para móvil */}
-          <div className="md:hidden space-y-4">
-            {reservasRecientes.map((reserva) => (
+          <div className="md:hidden p-4 space-y-4">
+            {reservasRecientes.map((reserva, index) => (
               <div
                 key={reserva.id}
-                className="bg-white rounded-xl border-2 border-gray-200 p-4 shadow-sm"
+                className="bg-gray-50 rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 text-lg mb-1">
-                      {reserva.nombreCliente}
-                    </h3>
-                    <p className="text-slate-600 text-sm mb-1">
+                  <div className="flex-1 flex items-center gap-3">
+                    <div
+                      className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${AVATAR_COLORS[index % AVATAR_COLORS.length]}`}
+                    >
+                      {getIniciales(reserva.nombreCliente)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        {reserva.nombreCliente}
+                      </h3>
+                    <p className="text-gray-600 text-sm mb-1">
                       {formatFechaHora(
                         reserva.fecha,
                         reserva.hora,
                         reserva.duracion,
                       )}
                     </p>
-                    <p className="text-slate-600 text-sm">{reserva.cancha}</p>
-                    <p className="text-slate-600 text-sm font-medium">
+                    <p className="text-gray-600 text-sm">{reserva.cancha}</p>
+                    <p className="text-gray-600 text-sm">
                       {getNombreLocal(reserva.localId)}
                     </p>
-                    <p className="text-slate-500 text-xs">{reserva.email}</p>
-                    <p className="text-slate-500 text-xs">{reserva.telefono}</p>
+                    <p className="text-gray-500 text-xs mt-1">{reserva.email}</p>
+                    <p className="text-gray-500 text-xs">{reserva.telefono}</p>
+                    </div>
                   </div>
                   <div className="text-right ml-4">
-                    <p className="font-bold text-slate-900 text-lg mb-2">
+                    <p className="font-semibold text-gray-900 mb-2">
                       S/ {reserva.precio}
                     </p>
                     <span
-                      className={`status-badge ${getEstadoColor(reserva.estado)}`}
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs ${getEstadoColor(reserva.estado)}`}
                     >
                       {getEstadoLabel(reserva.estado)}
                     </span>

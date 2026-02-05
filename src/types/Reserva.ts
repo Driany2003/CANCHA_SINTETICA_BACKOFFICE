@@ -14,9 +14,13 @@ export interface Reserva {
   origen: OrigenReserva;
   localId: string;
   notas?: string;
+  /** Motivos de rechazo (cuando estado es rechazado) */
+  motivoRechazo?: string[];
+  /** Observación opcional al rechazar */
+  observacionRechazo?: string;
 }
 
-export type EstadoReserva = 'pendiente_de_pago' | 'pagado_confirmado';
+export type EstadoReserva = 'pendiente_de_pago' | 'pagado_confirmado' | 'cancelado' | 'rechazado';
 
 export type MetodoPago = 
   | 'efectivo'

@@ -6,11 +6,15 @@ import {
   SearchIcon,
   EyeIcon,
   EditIcon,
-  TrashIcon
+  TrashIcon,
+  TimesCircleIcon,
+  CalendarIcon,
+  DownloadIcon
 } from '../components/icons/Icons';
 import ModalVerReserva from '../components/ModalVerReserva';
 import ModalEditarReserva from '../components/ModalEditarReserva';
 import ModalConfirmarEliminar from '../components/ModalConfirmarEliminar';
+import ModalRechazarReserva from '../components/ModalRechazarReserva';
 import { Reserva, EstadoReserva, OrigenReserva } from '../types/Reserva';
 import { Local } from '../types/Empresa';
 import { CURRENT_USER_ROLE, CURRENT_USER_LOCAL_ID } from '../config/userConfig';
@@ -20,16 +24,19 @@ const Reservas: React.FC = () => {
     estado: '',
     cancha: '',
     cliente: '',
-    fecha: ''
+    fecha: '',
+    origen: ''
   });
   const [localFiltro, setLocalFiltro] = useState<string>('todos');
   const [modalVerAbierto, setModalVerAbierto] = useState(false);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+  const [modalRechazarAbierto, setModalRechazarAbierto] = useState(false);
   const [reservaSeleccionada, setReservaSeleccionada] = useState<Reserva | null>(null);
 
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(5);
+  const [mostrarFiltrosTabla, setMostrarFiltrosTabla] = useState(false);
 
   // ===== SISTEMA DE FILTRADO POR DUEÑO =====
   const dueñoActualId = 'dueño_1'; // ID del dueño actual
@@ -222,7 +229,7 @@ const Reservas: React.FC = () => {
     : reservas.filter(reserva => reserva.localId === CURRENT_USER_LOCAL_ID);
 
   const canchas = ['Cancha 1', 'Cancha 2', 'Cancha 3'];
-  const estados: EstadoReserva[] = ['pendiente_de_pago', 'pagado_confirmado'];
+  const estados: EstadoReserva[] = ['pendiente_de_pago', 'pagado_confirmado', 'cancelado', 'rechazado'];
 
   const getEstadoColor = (estado: EstadoReserva) => {
     switch (estado) {
@@ -230,6 +237,10 @@ const Reservas: React.FC = () => {
         return 'status-confirmed';
       case 'pendiente_de_pago':
         return 'status-pending-payment';
+      case 'cancelado':
+        return 'status-cancelled';
+      case 'rechazado':
+        return 'status-rejected';
       default:
         return 'status-pending-payment';
     }
@@ -253,6 +264,10 @@ const Reservas: React.FC = () => {
         return 'Pagado - Confirmado';
       case 'pendiente_de_pago':
         return 'Pendiente de Pago';
+      case 'cancelado':
+        return 'Cancelado';
+      case 'rechazado':
+        return 'Rechazado';
       default:
         return 'Pendiente de Pago';
     }
@@ -282,23 +297,6 @@ const Reservas: React.FC = () => {
 
   const handleFiltroChange = (campo: string, valor: string) => {
     setFiltros(prev => ({ ...prev, [campo]: valor }));
-  };
-
-  const limpiarFiltros = () => {
-    setFiltros({
-      estado: '',
-      cancha: '',
-      cliente: '',
-      fecha: ''
-    });
-    // Resetear a la primera página cuando se limpien los filtros
-    setPaginaActual(1);
-  };
-
-  const aplicarFiltros = () => {
-    // Resetear a la primera página cuando se aplican filtros
-    setPaginaActual(1);
-    console.log('Filtros aplicados:', filtros);
   };
 
   const abrirModalVer = (reserva: Reserva) => {
@@ -344,6 +342,21 @@ const Reservas: React.FC = () => {
   const abrirModalEliminar = (reserva: Reserva) => {
     setReservaSeleccionada(reserva);
     setModalEliminarAbierto(true);
+  };
+
+  const abrirModalRechazar = (reserva: Reserva) => {
+    setReservaSeleccionada(reserva);
+    setModalRechazarAbierto(true);
+  };
+
+  const cerrarModalRechazar = () => {
+    setModalRechazarAbierto(false);
+    setReservaSeleccionada(null);
+  };
+
+  const confirmarRechazo = (reservaActualizada: Reserva) => {
+    setReservas(prev => prev.map(r => r.id === reservaActualizada.id ? reservaActualizada : r));
+    cerrarModalRechazar();
   };
 
   const cerrarModalEliminar = () => {
@@ -402,6 +415,7 @@ const Reservas: React.FC = () => {
     if (filtros.cancha && reserva.cancha !== filtros.cancha) return false;
     if (filtros.fecha && reserva.fecha !== filtros.fecha) return false;
     if (filtros.cliente && !reserva.nombreCliente.toLowerCase().includes(filtros.cliente.toLowerCase()) && !reserva.telefono.includes(filtros.cliente)) return false;
+    if (filtros.origen && reserva.origen !== filtros.origen) return false;
     return true;
   });
 
@@ -423,155 +437,127 @@ const Reservas: React.FC = () => {
     setPaginaActual(totalPaginas);
   };
 
+  const hoy = new Date().toISOString().slice(0, 10);
+  const reservasHoy = reservasFiltradasPorLocal.filter(r => r.fecha === hoy);
+  const pendientesPago = reservasFiltradasPorLocal.filter(r => r.estado === 'pendiente_de_pago').length;
+  const ingresosConfirmados = reservasFiltradasPorLocal
+    .filter(r => r.estado === 'pagado_confirmado')
+    .reduce((sum, r) => sum + r.precio, 0);
+
   return (
     <div className="space-y-8 px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col space-y-6 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Reservas</h1>
-          <p className="text-lg text-slate-600 mt-3">Gestiona todas las reservas del sistema</p>
-        </div>
-        <Link
-          to="/nueva-reserva"
-          className="btn-primary flex items-center justify-center"
-        >
-          <PlusIcon className="mr-2 h-5 w-5" />
-          Nueva Reserva
-        </Link>
+      {/* Título */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Reservas</h1>
       </div>
 
-      {/* Filtros */}
+      {/* Card principal: título + botón; dentro, card interior que envuelve solo las métricas */}
       <div className="card">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
-            <FilterIcon className="mr-3 h-6 w-6 text-green-600" />
-            <h2 className="text-2xl font-bold text-slate-900">Filtros de Búsqueda</h2>
-          </div>
-          <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-            {reservasFiltradas.length} reserva{reservasFiltradas.length !== 1 ? 's' : ''} encontrada{reservasFiltradas.length !== 1 ? 's' : ''}
-            {totalPaginas > 1 && ` • Página ${paginaActual} de ${totalPaginas}`}
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h2 className="text-lg font-bold text-slate-900">Descripción</h2>
+          <Link
+            to="/nueva-reserva"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+          >
+            <PlusIcon className="h-5 w-5" />
+            Nueva Reserva
+          </Link>
         </div>
-        
-        <div className={`grid grid-cols-1 gap-4 ${CURRENT_USER_ROLE === 'admin' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
-          {CURRENT_USER_ROLE === 'admin' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Local
-              </label>
-              <select
-                value={localFiltro}
-                onChange={(e) => setLocalFiltro(e.target.value)}
-                className="input-field py-2 text-sm"
-              >
-                <option value="todos">Todos los Locales</option>
-                {locales.map(local => (
-                  <option key={local.id} value={local.id}>
-                    {local.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Cliente
-            </label>
-            <div className="relative">
-              <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={filtros.cliente}
-                onChange={(e) => handleFiltroChange('cliente', e.target.value)}
-                className="input-field pl-8 py-2 text-sm"
-                placeholder="Nombre o teléfono..."
-              />
-            </div>
+        {/* Card interior: envuelve solo los datos y números (como en Dashboard) */}
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+          <div className="flex flex-col p-4 sm:px-6">
+            <p className="text-sm text-slate-500 font-medium mb-2">Total reservas</p>
+            <p className="text-3xl font-bold text-slate-900">{reservasFiltradasPorLocal.length}</p>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Estado
-            </label>
-            <select
-              value={filtros.estado}
-              onChange={(e) => handleFiltroChange('estado', e.target.value)}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todos</option>
-              {estados.map(estado => (
-                <option key={estado} value={estado}>
-                  {getEstadoLabel(estado)}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col p-4 sm:px-6">
+            <p className="text-sm text-slate-500 font-medium mb-2">Pendientes de pago</p>
+            <p className="text-3xl font-bold text-slate-900">{pendientesPago}</p>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Cancha
-            </label>
-            <select
-              value={filtros.cancha}
-              onChange={(e) => handleFiltroChange('cancha', e.target.value)}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todas</option>
-              {canchas.map(cancha => (
-                <option key={cancha} value={cancha}>{cancha}</option>
-              ))}
-            </select>
+          <div className="flex flex-col p-4 sm:px-6">
+            <p className="text-sm text-slate-500 font-medium mb-2">Reservas hoy</p>
+            <p className="text-3xl font-bold text-slate-900">{reservasHoy.length}</p>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Fecha
-            </label>
-            <input
-              type="date"
-              value={filtros.fecha}
-              onChange={(e) => handleFiltroChange('fecha', e.target.value)}
-              className="input-field py-2 text-sm"
-            />
+          <div className="flex flex-col p-4 sm:px-6">
+            <p className="text-sm text-slate-500 font-medium mb-2">Ingresos confirmados</p>
+            <p className="text-3xl font-bold text-slate-900">S/ {ingresosConfirmados.toLocaleString()}</p>
           </div>
         </div>
-
-        <div className="mt-6 pt-6 border-t border-slate-200">
-          <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-y-0">
-            <div className="text-sm text-slate-600">
-              <span className="font-medium">Tip:</span> Filtra por cliente, estado, cancha y fecha para ver disponibilidad
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={limpiarFiltros}
-                className="btn-secondary flex items-center justify-center px-3 py-1 text-sm"
-              >
-                Limpiar
-              </button>
-              <button
-                onClick={aplicarFiltros}
-                className="btn-primary flex items-center justify-center px-3 py-1 text-sm"
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Tabla de Reservas */}
       <div className="card">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-slate-900">Lista de Reservas</h2>
-          <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-            {reservasFiltradas.length} reserva{reservasFiltradas.length !== 1 ? 's' : ''}
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          {/* Izquierda: título y subtítulo */}
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Lista de Reservas</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Tu lista de reservas recientes</p>
+          </div>
+          {/* Derecha: segmentado + búsqueda + Filter + Export */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex bg-gray-100 rounded-lg p-1">
+              {[
+                { value: '', label: 'Todos' },
+                { value: 'pagado_confirmado', label: 'Pagado' },
+                { value: 'pendiente_de_pago', label: 'Pendiente' },
+              ].map(({ value, label }) => (
+                <button
+                  key={value || 'todos'}
+                  type="button"
+                  onClick={() => {
+                    setFiltros(prev => ({ ...prev, estado: value }));
+                    setPaginaActual(1);
+                  }}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    filtros.estado === value
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full sm:w-auto sm:min-w-[200px] sm:max-w-[280px]">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={filtros.cliente}
+                onChange={(e) => {
+                  setFiltros(prev => ({ ...prev, cliente: e.target.value }));
+                  setPaginaActual(1);
+                }}
+                placeholder="Search..."
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setMostrarFiltrosTabla(prev => !prev)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 ${
+                mostrarFiltrosTabla ? 'ring-2 ring-green-500 border-green-500' : ''
+              }`}
+              title={mostrarFiltrosTabla ? "Ocultar filtros" : "Mostrar filtros por columna"}
+            >
+              <FilterIcon className="h-4 w-4" />
+              Filter
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              title="Exportar reservas"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              Export
+            </button>
+          </div>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-hidden -mx-8">
           {/* Tabla para desktop */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-green-200">
+            <table className="min-w-full border-collapse">
               <thead>
                 <tr>
                   <th className="table-header">Cliente</th>
@@ -585,9 +571,100 @@ const Reservas: React.FC = () => {
                   <th className="table-header text-center w-44">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-green-200">
+              {mostrarFiltrosTabla && (
+                <tbody className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <td className="px-6 py-3 align-top">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          value={filtros.cliente}
+                          onChange={(e) => { handleFiltroChange('cliente', e.target.value); setPaginaActual(1); }}
+                          placeholder="Nombre o teléfono..."
+                          className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <input
+                        type="text"
+                        placeholder="—"
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        readOnly
+                        tabIndex={-1}
+                      />
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <div className="relative">
+                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <input
+                          type="date"
+                          value={filtros.fecha}
+                          onChange={(e) => { handleFiltroChange('fecha', e.target.value); setPaginaActual(1); }}
+                          className="w-full pl-3 pr-8 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.cancha}
+                        onChange={(e) => { handleFiltroChange('cancha', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todas</option>
+                        {canchas.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </td>
+                    {CURRENT_USER_ROLE === 'admin' && (
+                      <td className="px-6 py-3 align-top">
+                        <select
+                          value={localFiltro}
+                          onChange={(e) => { setLocalFiltro(e.target.value); setPaginaActual(1); }}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="todos">Todos los Locales</option>
+                          {locales.map((local) => (
+                            <option key={local.id} value={local.id}>{local.nombre}</option>
+                          ))}
+                        </select>
+                      </td>
+                    )}
+                    <td className="px-6 py-3 align-top">
+                      <div className="px-3 py-2 text-sm text-slate-400">—</div>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.estado}
+                        onChange={(e) => { handleFiltroChange('estado', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        {estados.map((e) => (
+                          <option key={e} value={e}>{getEstadoLabel(e)}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.origen ?? ''}
+                        onChange={(e) => { handleFiltroChange('origen', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        <option value="web">Web</option>
+                        <option value="local">Local</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 w-44" />
+                  </tr>
+                </tbody>
+              )}
+              <tbody className="bg-white">
                 {reservasPaginadas.map((reserva) => (
-                  <tr key={reserva.id} className="table-row">
+                  <tr key={reserva.id} className="table-row border-b border-gray-200 last:border-b-0">
                     <td className="table-cell">
                       <div>
                         <div className="font-semibold text-slate-900">{reserva.nombreCliente}</div>
@@ -643,6 +720,18 @@ const Reservas: React.FC = () => {
                           disabled={reserva.estado === 'pagado_confirmado'}
                         >
                           <EditIcon className="h-5 w-5" />
+                        </button>
+                        <button 
+                          onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalRechazar(reserva) : undefined}
+                          className={`inline-flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 border ${
+                            reserva.estado === 'pendiente_de_pago'
+                              ? 'text-amber-600 hover:text-white hover:bg-amber-600 border-amber-200 hover:border-amber-600 cursor-pointer'
+                              : 'text-gray-300 border-gray-200 cursor-not-allowed bg-gray-50'
+                          }`}
+                          title={reserva.estado === 'pendiente_de_pago' ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
+                          disabled={reserva.estado !== 'pendiente_de_pago'}
+                        >
+                          <TimesCircleIcon className="h-5 w-5" />
                         </button>
                         <button 
                           onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEliminar(reserva) : undefined}
@@ -817,6 +906,18 @@ const Reservas: React.FC = () => {
                     <EditIcon className="h-4 w-4" />
                   </button>
                   <button 
+                    onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalRechazar(reserva) : undefined}
+                    className={`inline-flex items-center justify-center p-2 rounded-full transition-all duration-200 ${
+                      reserva.estado === 'pendiente_de_pago'
+                        ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 cursor-pointer'
+                        : 'text-gray-400 cursor-not-allowed'
+                    }`}
+                    title={reserva.estado === 'pendiente_de_pago' ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
+                    disabled={reserva.estado !== 'pendiente_de_pago'}
+                  >
+                    <TimesCircleIcon className="h-4 w-4" />
+                  </button>
+                  <button 
                     onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEliminar(reserva) : undefined}
                     className={`inline-flex items-center justify-center p-2 rounded-full transition-all duration-200 ${
                       reserva.estado === 'pendiente_de_pago'
@@ -859,6 +960,13 @@ const Reservas: React.FC = () => {
         abierto={modalEliminarAbierto}
         onCerrar={cerrarModalEliminar}
         onConfirmar={eliminarReserva}
+      />
+      
+      <ModalRechazarReserva
+        reserva={reservaSeleccionada}
+        abierto={modalRechazarAbierto}
+        onCerrar={cerrarModalRechazar}
+        onConfirmar={confirmarRechazo}
       />
     </div>
   );

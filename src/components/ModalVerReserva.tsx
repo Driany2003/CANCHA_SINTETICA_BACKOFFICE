@@ -1,6 +1,7 @@
 import React from 'react';
 import { Reserva, EstadoReserva } from '../types/Reserva';
 import { XIcon, ClockIcon, CurrencyDollarIcon } from '../components/icons/Icons';
+import { MOTIVOS_RECHAZO } from './ModalRechazarReserva';
 
 interface ModalVerReservaProps {
   reserva: Reserva | null;
@@ -101,6 +102,24 @@ const ModalVerReserva: React.FC<ModalVerReservaProps> = ({
               </div>
             </div>
           </div>
+
+          {reserva.estado === 'rechazado' && (reserva.motivoRechazo?.length || reserva.observacionRechazo) && (
+            <div className="bg-red-50 rounded-lg p-3 border border-red-100">
+              <h4 className="text-base font-semibold text-red-900 mb-2">Motivo(s) de rechazo</h4>
+              {reserva.motivoRechazo?.length ? (
+                <ul className="list-disc list-inside text-sm text-red-800 space-y-1 mb-2">
+                  {reserva.motivoRechazo.map((id) => (
+                    <li key={id}>{MOTIVOS_RECHAZO.find((m) => m.id === id)?.label ?? id}</li>
+                  ))}
+                </ul>
+              ) : null}
+              {reserva.observacionRechazo && (
+                <p className="text-sm text-red-700 mt-2">
+                  <span className="font-medium">Observación:</span> {reserva.observacionRechazo}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Comprobante de Pago */}
           <div className="bg-slate-50 rounded-lg p-3">
