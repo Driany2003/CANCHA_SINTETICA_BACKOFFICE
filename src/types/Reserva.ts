@@ -1,5 +1,6 @@
 export interface Reserva {
   id: string;
+  dni?: string;
   nombreCliente: string;
   telefono: string;
   email: string;

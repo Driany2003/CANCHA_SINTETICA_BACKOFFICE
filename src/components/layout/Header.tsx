@@ -1,12 +1,15 @@
 import React from "react";
 import { BarsIcon, UserIcon } from "../icons/Icons";
 import { CURRENT_USER_ROLE } from "../../config/userConfig";
+import { Menu } from "lucide-react";
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
+  expanded?: boolean;
+  setExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
+const Header: React.FC<HeaderProps> = ({ setSidebarOpen, expanded = true, setExpanded }) => {
   // Información del usuario actual (simulada)
   const usuarioActual = {
     nombre:
@@ -17,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   return (
     <>
       {/* Header móvil */}
-      <div className="nav-header sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b px-4 lg:hidden">
+      <div className="nav-header sticky top-0 z-40 flex h-[77px] shrink-0 items-center gap-x-4 border-b px-4 lg:hidden">
         <button
           type="button"
           className="-m-2.5 p-2.5 text-slate-700"
@@ -43,7 +46,20 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
       </div>
 
       {/* Header desktop */}
-      <div className="nav-header sticky top-0 z-40 hidden lg:flex h-20 shrink-0 items-center justify-end border-b px-6">
+      <div className="nav-header sticky top-0 z-40 hidden lg:flex h-[77px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6">
+        {/* Botón expandir/contraer sidebar */}
+        <div className="flex items-center">
+          {setExpanded && (
+            <button
+              type="button"
+              onClick={() => setExpanded((curr: boolean) => !curr)}
+              className="w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-slate-200/80 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors shadow-sm hover:shadow"
+              title={expanded ? "Contraer menú" : "Expandir menú"}
+            >
+              <Menu className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+          )}
+        </div>
         {/* Información del usuario */}
         <div className="flex items-center space-x-4">
           <div>

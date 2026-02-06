@@ -8,7 +8,6 @@ import {
   EditIcon,
   TrashIcon,
   TimesCircleIcon,
-  CalendarIcon,
   DownloadIcon
 } from '../components/icons/Icons';
 import ModalVerReserva from '../components/ModalVerReserva';
@@ -596,15 +595,12 @@ const Reservas: React.FC = () => {
                       />
                     </td>
                     <td className="px-6 py-3 align-top">
-                      <div className="relative">
-                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                        <input
-                          type="date"
-                          value={filtros.fecha}
-                          onChange={(e) => { handleFiltroChange('fecha', e.target.value); setPaginaActual(1); }}
-                          className="w-full pl-3 pr-8 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <input
+                        type="date"
+                        value={filtros.fecha}
+                        onChange={(e) => { handleFiltroChange('fecha', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      />
                     </td>
                     <td className="px-6 py-3 align-top">
                       <select

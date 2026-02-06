@@ -1,26 +1,27 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  PlusIcon,
-  FutbolIcon,
-  CloseIcon,
-  LogoutIcon,
-  ClientesIcon,
-  UsuariosIcon,
-  DashboardIcon,
-  ReservasIcon,
-  ReportesIcon,
-  EmpresaIcon,
-} from "../icons/Icons";
+  LayoutDashboard,
+  CalendarCheck,
+  Plus,
+  LayoutGrid,
+  Users,
+  UserCircle,
+  Building2,
+  BarChart3,
+  LogOut,
+  X,
+} from "lucide-react";
 import { CURRENT_USER_ROLE, MENU_ITEMS_BY_ROLE } from "../../config/userConfig";
 import ModalConfirmarLogout from "../ModalConfirmarLogout";
-import { ChevronFirst } from "lucide-react";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   expanded: boolean;
   setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  sidebarHovered?: boolean;
+  setSidebarHovered?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface SidebarContentProps {
@@ -43,34 +44,38 @@ const Sidebar: React.FC<SidebarProps> = ({
   setSidebarOpen,
   expanded,
   setExpanded,
+  sidebarHovered = false,
+  setSidebarHovered,
 }) => {
   const location = useLocation();
+  const visuallyExpanded = expanded || sidebarHovered;
   const [modalLogoutAbierto, setModalLogoutAbierto] = useState(false);
 
   // ===== SISTEMA DE ROLES =====
   const userRole = CURRENT_USER_ROLE;
   const menuItems = MENU_ITEMS_BY_ROLE[userRole];
 
+  const iconClass = "h-[1.375rem] w-[1.375rem] shrink-0 text-current";
   const getIconForPath = (path: string) => {
     switch (path) {
       case "/":
-        return <DashboardIcon className="h-5 w-5" />;
+        return <LayoutDashboard className={iconClass} strokeWidth={1.5} />;
       case "/reservas":
-        return <ReservasIcon className="h-5 w-5" />;
+        return <CalendarCheck className={iconClass} strokeWidth={1.5} />;
       case "/nueva-reserva":
-        return <PlusIcon className="h-5 w-5" />;
+        return <Plus className={iconClass} strokeWidth={1.5} />;
       case "/canchas":
-        return <FutbolIcon className="h-5 w-5" />;
+        return <LayoutGrid className={iconClass} strokeWidth={1.5} />;
       case "/clientes":
-        return <ClientesIcon className="h-5 w-5" />;
+        return <Users className={iconClass} strokeWidth={1.5} />;
       case "/usuarios":
-        return <UsuariosIcon className="h-5 w-5" />;
+        return <UserCircle className={iconClass} strokeWidth={1.5} />;
       case "/empresa":
-        return <EmpresaIcon className="h-5 w-5" />;
+        return <Building2 className={iconClass} strokeWidth={1.5} />;
       case "/reportes":
-        return <ReportesIcon className="h-5 w-5" />;
+        return <BarChart3 className={iconClass} strokeWidth={1.5} />;
       default:
-        return <DashboardIcon className="h-5 w-5" />;
+        return <LayoutDashboard className={iconClass} strokeWidth={1.5} />;
     }
   };
 
@@ -151,42 +156,38 @@ const Sidebar: React.FC<SidebarProps> = ({
   }: SidebarContentProps) => {
     return (
       <aside className="h-screen bg-white">
-        <nav className="h-full flex flex-col border-r border-gray-200">
-          {/* Header con logo */}
-          <div className="p-4 pt-5 pb-5">
-            <div
-              className={`flex items-center ${expanded ? "justify-between" : "justify-center"}`}
-            >
-              <div
-                className={`flex items-center transition-all duration-200 ${expanded ? "opacity-100" : "opacity-0 w-0"}`}
-              >
-                <img
-                  src="/logo.png"
-                  className="h-6 w-auto"
-                  alt="Logo Cancha Sintetica"
-                />
-              </div>
-              <button
-                onClick={() => setExpanded((curr: boolean) => !curr)}
-                className="border-2 border-gray-200 p-2 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
-                title={expanded ? "Contraer sidebar" : "Expandir sidebar"}
-              >
-                <ChevronFirst
-                  className={`h-4 w-4 text-gray-600 transition-transform duration-200 ${
-                    expanded ? "rotate-0" : "rotate-180"
-                  }`}
-                />
-              </button>
+        <nav className="h-full flex flex-col border-r border-slate-200 bg-white">
+          {/* Solo logo en sidebar (sin texto ni botón; el toggle está en el header) */}
+          <div className={`pt-5 pb-4 ${expanded ? "px-5" : "px-3"}`}>
+            <div className={`flex ${expanded ? "justify-start" : "justify-center"}`}>
+              <img
+                src="/logo.png"
+                className="h-9 w-9 shrink-0 rounded object-contain"
+                alt="Logo"
+              />
             </div>
           </div>
-          {/* Línea separadora con padding */}
-          <div className="mx-4 border-b border-gray-200"></div>
+
+          {!expanded && (
+            <div className="flex justify-center gap-1 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+            </div>
+          )}
 
           {/* Contenido del menú */}
-          <div className="flex-1 overflow-y-auto py-3">{children}</div>
+          <div className="flex-1 overflow-y-auto py-4">{children}</div>
 
-          {/* Línea separadora del logout con padding */}
-          <div className="mx-4 border-t border-gray-200"></div>
+          {expanded ? (
+            <div className="mx-4 border-t border-slate-200" />
+          ) : (
+            <div className="flex justify-center gap-1 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+            </div>
+          )}
 
           {/* Botón de logout */}
           <div className="p-4">
@@ -194,13 +195,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={abrirModalLogout}
               className={`flex items-center text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 ${
                 expanded
-                  ? "w-full px-4 py-3 justify-start"
+                  ? "w-full px-4 py-3 justify-start gap-3"
                   : "w-12 h-12 justify-center mx-auto"
               }`}
               title={expanded ? "" : "Cerrar Sesión"}
             >
-              <LogoutIcon className="h-5 w-5" />
-              {expanded && <span className="ml-3">Cerrar Sesión</span>}
+              <LogOut className="h-[1.375rem] w-[1.375rem] shrink-0 text-[#778899]" strokeWidth={1.5} />
+              {expanded && <span className="ml-0">Cerrar Sesión</span>}
             </button>
           </div>
         </nav>
@@ -237,7 +238,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => setSidebarOpen(false)}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
-              <CloseIcon className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-slate-500" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -278,10 +279,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4">
             <button
               onClick={abrirModalLogout}
-              className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
             >
-              <LogoutIcon className="h-5 w-5" />
-              <span className="ml-3">Cerrar Sesión</span>
+              <LogOut className="h-[1.375rem] w-[1.375rem] shrink-0 text-[#778899]" strokeWidth={1.5} />
+              <span>Cerrar Sesión</span>
             </button>
           </div>
         </div>
@@ -290,51 +291,49 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar desktop */}
       <div
         className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col transition-all duration-300 ${
-          expanded ? "lg:w-64" : "lg:w-19-2"
+          visuallyExpanded ? "lg:w-[290px]" : "lg:w-19-2"
         }`}
+        onMouseEnter={() => !expanded && setSidebarHovered?.(true)}
+        onMouseLeave={() => setSidebarHovered?.(false)}
       >
-        <SidebarContent expanded={expanded} setExpanded={setExpanded}>
+        <SidebarContent expanded={visuallyExpanded} setExpanded={setExpanded}>
           {menuSections.map((section, sectionIndex) => (
             <div key={section.title}>
-              {/* Línea separadora solo cuando está contraído y no es la primera sección */}
-              {!expanded && sectionIndex > 0 && (
-                <div className="mx-4 border-t border-gray-200 mb-3"></div>
+              {!visuallyExpanded && sectionIndex > 0 && (
+                <div className="flex justify-center gap-1 py-2 my-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                </div>
               )}
 
-              <div className={`mb-3 ${expanded ? "px-3" : "px-4"}`}>
-                {expanded && (
-                  <div className="mb-3">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3">
-                      {section.title}
-                    </h3>
-                  </div>
+              <div className={`${visuallyExpanded ? "pl-5 pr-4 mb-5" : "px-3 mb-3"}`}>
+                {visuallyExpanded && (
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    {section.title}
+                  </h3>
                 )}
-                <div className="space-y-1">
+                <div className={visuallyExpanded ? "space-y-1 pl-8 -ml-9" : "space-y-1"}>
                   {section.items.map((item) => (
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`group relative flex items-center text-sm font-medium rounded-lg transition-all duration-150 ${
-                        expanded
-                          ? "px-3 py-2 justify-start"
-                          : "px-3 py-3 justify-center mx-0"
+                      className={`group relative flex items-center rounded-lg ${
+                        visuallyExpanded
+                          ? "px-4 py-2 gap-3 justify-start"
+                          : `px-3 py-3 justify-center ${isActive(item.path) ? "max-w-[3rem] mx-auto" : ""}`
                       } ${
                         isActive(item.path)
                           ? "bg-green-100 text-green-700"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          : "text-slate-700 hover:bg-slate-50"
                       }`}
-                      title={expanded ? "" : item.label}
+                      title=""
                     >
-                      <div className="flex-shrink-0">{item.icon}</div>
-                      {expanded && (
-                        <span className="ml-3 truncate">{item.label}</span>
-                      )}
-
-                      {/* Tooltip para modo contraído */}
-                      {!expanded && (
-                        <div className="fixed left-19-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
-                          {item.label}
-                        </div>
+                      <span className={!isActive(item.path) ? "text-[#778899]" : "text-green-700"}>
+                        {item.icon}
+                      </span>
+                      {visuallyExpanded && (
+                        <span className="text-sm font-semibold truncate">{item.label}</span>
                       )}
                     </Link>
                   ))}

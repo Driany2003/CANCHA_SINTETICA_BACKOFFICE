@@ -21,6 +21,8 @@ import Empresa from "./pages/Empresa";
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const visuallyExpanded = expanded || sidebarHovered;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Verificar autenticación al cargar la app
@@ -49,18 +51,20 @@ function App() {
           setSidebarOpen={setSidebarOpen}
           expanded={expanded}
           setExpanded={setExpanded}
+          sidebarHovered={sidebarHovered}
+          setSidebarHovered={setSidebarHovered}
         />
 
         {/* Contenido principal */}
         <div
           className={`transition-all duration-300 ${
-            expanded ? "lg:pl-64" : "lg:pl-19-2"
+            visuallyExpanded ? "lg:pl-[290px]" : "lg:pl-19-2"
           }`}
         >
-          <Header setSidebarOpen={setSidebarOpen} />
+          <Header setSidebarOpen={setSidebarOpen} expanded={expanded} setExpanded={setExpanded} />
 
-          {/* Contenido de la página */}
-          <main className=" ml-40 mr-32">
+          {/* Contenido de la página: ancho amplio para que la tabla no requiera scroll horizontal */}
+          <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <Routes>
               {/* Rutas protegidas por rol */}
               <Route

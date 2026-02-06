@@ -443,25 +443,25 @@ const Canchas: React.FC = () => {
             </div>
           </div>
 
-          <div className="overflow-hidden">
+          <div className="overflow-hidden -mx-8">
             {/* Tabla para desktop */}
             <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y-2 divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="table-header">Imagen</th>
+                    <th className="table-header pl-8">Imagen</th>
                     <th className="table-header">Nombre</th>
                     <th className="table-header">Tipo</th>
                     <th className="table-header">Local</th>
                     <th className="table-header">Precio/Hora</th>
                     <th className="table-header">Estado</th>
-                    <th className="table-header text-center w-32">Acciones</th>
+                    <th className="table-header text-center w-32 pr-8">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y-2 divide-gray-100">
                   {canchasPaginadas.map((cancha) => (
                     <tr key={cancha.id} className="table-row">
-                      <td className="table-cell">
+                      <td className="table-cell pl-8">
                         <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-100">
                           {cancha.imagen ? (
                             <img
@@ -498,7 +498,7 @@ const Canchas: React.FC = () => {
                           {getEstadoLabel(cancha.disponible)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-900 w-32">
+                      <td className="table-cell pr-8 text-center w-32">
                         <div className="flex items-center justify-center gap-3">
                           <button
                             onClick={() => editarCancha(cancha)}
