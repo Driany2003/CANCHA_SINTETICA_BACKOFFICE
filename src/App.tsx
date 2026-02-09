@@ -18,14 +18,31 @@ import Clientes from "./pages/Clientes";
 import Usuarios from "./pages/Usuarios";
 import Empresa from "./pages/Empresa";
 
+const THEME_KEY = "cancha-backoffice-theme";
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const visuallyExpanded = expanded || sidebarHovered;
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem(THEME_KEY) === "dark"
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => !!localStorage.getItem("userToken")
+  );
 
-  // Verificar autenticación al cargar la app
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.classList.add("dark");
+      localStorage.setItem(THEME_KEY, "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem(THEME_KEY, "light");
+    }
+  }, [darkMode]);
+
   useEffect(() => {
     const token = localStorage.getItem("userToken");
     setIsAuthenticated(!!token);
@@ -45,7 +62,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#101f28] transition-colors">
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
@@ -61,10 +78,10 @@ function App() {
             visuallyExpanded ? "lg:pl-[290px]" : "lg:pl-19-2"
           }`}
         >
-          <Header setSidebarOpen={setSidebarOpen} expanded={expanded} setExpanded={setExpanded} />
+          <Header setSidebarOpen={setSidebarOpen} expanded={expanded} setExpanded={setExpanded} darkMode={darkMode} setDarkMode={setDarkMode} />
 
           {/* Contenido de la página: ancho amplio para que la tabla no requiera scroll horizontal */}
-          <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <main className="w-full max-w-[1582px] mx-auto px-4 sm:px-5 lg:px-6">
             <Routes>
               {/* Rutas protegidas por rol */}
               <Route

@@ -54,7 +54,7 @@ const Login: React.FC = () => {
       {/* Mitad Izquierda - Logo */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-500 via-emerald-600 to-green-700 items-center justify-center p-12">
         <div className="text-center">
-          <div className="mx-auto w-64 h-64 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl p-8">
+          <div className="mx-auto w-96 h-96 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl p-8">
             <img 
               src="/logo.png" 
               alt="Raki Logo" 
@@ -71,30 +71,27 @@ const Login: React.FC = () => {
               <span className="text-6xl font-bold text-white">R</span>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Raki</h1>
+          <h1 className="text-5xl font-bold text-white mb-4">Raki</h1>
           <p className="text-green-100 text-xl font-semibold mb-2">"Tu cancha, tu pasión, nuestra tecnología"</p>
           <p className="text-green-200 text-sm">Sistema de Gestión de Canchas Sintéticas</p>
         </div>
       </div>
 
-      {/* Mitad Derecha - Formulario de Login */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 bg-white dark:bg-[#101f28] flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          {/* Header móvil (solo visible en pantallas pequeñas) */}
           <div className="text-center mb-8 lg:hidden">
             <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
               <span className="text-2xl font-bold text-white">R</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">Bienvenido a Raki</h1>
-            <p className="text-green-600 font-medium mb-1">"Tu cancha, tu pasión, nuestra tecnología"</p>
-            <p className="text-slate-600 text-sm">Inicia sesión para continuar</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Bienvenido a Raki</h1>
+            <p className="text-green-600 dark:text-green-400 font-medium mb-1">"Tu cancha, tu pasión, nuestra tecnología"</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm">Inicia sesión para continuar</p>
           </div>
 
-          {/* Header desktop */}
           <div className="hidden lg:block text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Iniciar Sesión</h2>
-            <p className="text-green-600 font-medium text-lg mb-2">"Tu cancha, tu pasión, nuestra tecnología"</p>
-            <p className="text-slate-600">Ingresa tus credenciales para acceder al sistema</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Iniciar Sesión</h2>
+            <p className="text-green-600 dark:text-green-400 font-medium text-lg mb-2">"Tu cancha, tu pasión, nuestra tecnología"</p>
+            <p className="text-slate-600 dark:text-slate-400">Ingresa tus credenciales para acceder al sistema</p>
           </div>
 
           {/* Formulario de Login */}

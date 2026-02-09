@@ -603,8 +603,8 @@ const Reportes: React.FC = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Reportes y Analytics</h1>
-              <p className="text-slate-600 mt-2">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Reportes y Analytics</h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-2">
               {localActual ? `Análisis detallado de ${localActual.nombre}` : 'Selecciona un local para ver reportes específicos'}
               </p>
             </div>
@@ -612,11 +612,11 @@ const Reportes: React.FC = () => {
               </div>
 
       {/* Selector de Local */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
+      <div className="bg-white dark:bg-white/[0.03] rounded-lg shadow-sm border border-slate-200 dark:border-gray-800 p-6 mb-6">
         <div className="flex flex-col space-y-4">
           <div className="flex items-center space-x-3">
-            <BuildingOfficeIcon className="h-6 w-6 text-slate-600" />
-            <h3 className="text-lg font-semibold text-slate-900">Seleccionar Local</h3>
+            <BuildingOfficeIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Seleccionar Local</h3>
           </div>
           
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -626,22 +626,22 @@ const Reportes: React.FC = () => {
                 onClick={() => setLocalSeleccionado(local.id)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                   localSeleccionado === local.id
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-green-500 bg-green-50 dark:bg-green-500/20 dark:border-green-500'
+                    : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 dark:hover:border-gray-600 hover:bg-slate-50 dark:hover:bg-white/[0.05]'
                 }`}
               >
                 <div className="flex items-start space-x-3">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                     localSeleccionado === local.id
                       ? 'bg-green-500 text-white'
-                      : 'bg-slate-100 text-slate-600'
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                   }`}>
                     <MapPinIcon className="h-6 w-6" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-slate-900">{local.nombre}</h4>
-                    <p className="text-sm text-slate-600">{local.direccion}</p>
-                    <p className="text-xs text-slate-500 mt-1">{local.canchas?.length || 0} canchas</p>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">{local.nombre}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{local.direccion}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{local.canchas?.length || 0} canchas</p>
                   </div>
                 </div>
               </div>
@@ -654,7 +654,7 @@ const Reportes: React.FC = () => {
         <>
 
         {/* Filtros de Período */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="bg-white dark:bg-white/[0.03] rounded-lg shadow-sm border border-slate-200 dark:border-gray-800 p-6 mb-6">
             <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
               <div className="flex items-center space-x-2">
                 <button
@@ -950,8 +950,8 @@ const Reportes: React.FC = () => {
           <div className="mx-auto h-20 w-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 mb-6">
             <DownloadIcon className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">Exportar Reporte Completo</h2>
-          <p className="text-slate-600 mb-6 max-w-md">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Exportar Reporte Completo</h2>
+          <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-md">
             Descarga un reporte completo en Excel con todas las métricas financieras, análisis por período, comisiones Raki e información contable detallada
           </p>
           <button 
@@ -964,7 +964,7 @@ const Reportes: React.FC = () => {
             <DownloadIcon className="h-5 w-5" />
             <span>Descargar Excel</span>
           </button>
-          <p className="text-xs text-slate-500 mt-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
             Incluye: Ingresos, Comisiones Raki (3.5%), IGV, Análisis por origen, Métodos de pago
           </p>
         </div>

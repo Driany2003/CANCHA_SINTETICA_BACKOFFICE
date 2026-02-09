@@ -4,7 +4,9 @@ import {
   SearchIcon, 
   UserIcon,
   EditIcon,
-  TrashIcon
+  TrashIcon,
+  FilterIcon,
+  DownloadIcon
 } from '../components/icons/Icons';
 import ModalEditarCliente from '../components/ModalEditarCliente';
 import ModalConfirmarEliminarCliente from '../components/ModalConfirmarEliminarCliente';
@@ -15,6 +17,7 @@ const Clientes: React.FC = () => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+  const [mostrarFiltrosTabla, setMostrarFiltrosTabla] = useState(false);
   
   const [filtros, setFiltros] = useState({
     nombre: '',
@@ -229,106 +232,156 @@ const Clientes: React.FC = () => {
   const irAPrimeraPagina = () => setPaginaActual(1);
   const irAUltimaPagina = () => setPaginaActual(totalPaginas);
 
+  const exportarClientes = () => {
+    const headers = ['Nombre', 'DNI', 'Teléfono', 'Email', 'Estado', 'Categoría', 'Total Reservas', 'Total Gastado', 'Fecha Registro'];
+    const filas = clientesFiltrados.map((c) => [
+      c.nombre,
+      c.dni,
+      c.telefono,
+      c.email || '',
+      c.estado === 'activo' ? 'Activo' : 'Inactivo',
+      c.categoria || '',
+      String(c.totalReservas),
+      String(c.totalGastado),
+      c.fechaRegistro
+    ]);
+    const csv = '\uFEFF' + [headers.join(','), ...filas.map((f) => f.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clientes_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8 px-8 py-8">
       {/* Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-start md:space-y-0">
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-slate-900">Gestión de Clientes</h1>
-          <p className="text-slate-600 mt-1">
-            Control y fidelización de clientes del sistema
-          </p>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="card">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-slate-900">Filtros</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Buscar
-            </label>
-            <div className="relative">
-              <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={filtros.nombre}
-                onChange={(e) => handleFiltroChange('nombre', e.target.value)}
-                className="input-field pl-8 py-2 text-sm"
-                placeholder="Nombre del cliente..."
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Estado
-            </label>
-            <select
-              value={filtros.estado}
-              onChange={(e) => handleFiltroChange('estado', e.target.value)}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todos los estados</option>
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-slate-200">
-          <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-y-0">
-            <div className="text-sm text-slate-600">
-              <span className="font-medium">Tip:</span> Filtra por nombre, estado y más criterios
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={limpiarFiltros}
-                className="btn-secondary flex items-center justify-center px-3 py-1 text-sm"
-              >
-                Limpiar
-              </button>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Gestión de Clientes</h1>
         </div>
       </div>
 
       {/* Tabla de Clientes */}
-      <div className="card">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0 mb-8">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-900">Lista de Clientes</h2>
+      <div className="card py-5 px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Lista de Clientes</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Tu lista de clientes recientes</p>
           </div>
-          <div className="flex-shrink-0 lg:ml-6">
-            <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
-              {clientesFiltrados.length} cliente{clientesFiltrados.length !== 1 ? 's' : ''}
-            </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex bg-gray-100 dark:bg-white/10 rounded-lg p-1.5">
+              {[
+                { value: '', label: 'Todos' },
+                { value: 'activo', label: 'Activos' },
+                { value: 'inactivo', label: 'Inactivos' },
+              ].map(({ value, label }) => (
+                <button
+                  key={value || 'todos'}
+                  type="button"
+                  onClick={() => {
+                    handleFiltroChange('estado', value);
+                    setPaginaActual(1);
+                  }}
+                  className={`px-4 py-3 rounded-md text-sm font-semibold transition-all duration-200 ${
+                    filtros.estado === value ? 'bg-white dark:bg-white/20 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full sm:w-auto sm:min-w-[200px] sm:max-w-[280px]">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={filtros.nombre}
+                onChange={(e) => {
+                  handleFiltroChange('nombre', e.target.value);
+                  setPaginaActual(1);
+                }}
+                placeholder="Search..."
+                className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 min-h-[44px]"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setMostrarFiltrosTabla((prev) => !prev)}
+              className={`inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-semibold text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600 flex-shrink-0 min-h-[44px] ${
+                mostrarFiltrosTabla ? 'ring-2 ring-green-500 border-green-500' : ''
+              }`}
+              title={mostrarFiltrosTabla ? 'Ocultar filtros' : 'Mostrar filtros por columna'}
+            >
+              <FilterIcon className="h-4 w-4" />
+              Filter
+            </button>
+            <button
+              type="button"
+              onClick={exportarClientes}
+              className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-semibold text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600 min-h-[44px]"
+              title="Exportar clientes"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              Export
+            </button>
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-hidden -mx-8">
           {/* Tabla para desktop */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-green-200">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th className="table-header">Cliente</th>
+                  <th className="table-header pl-8">Cliente</th>
                   <th className="table-header">Contacto</th>
                   <th className="table-header">Estadísticas</th>
                   <th className="table-header">Estado</th>
                   <th className="table-header">Última Reserva</th>
                   <th className="table-header">Fecha Registro</th>
-                  <th className="table-header text-center w-32">Acciones</th>
+                  <th className="table-header text-center w-32 pr-8">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-green-200">
+              {mostrarFiltrosTabla && (
+                <tbody className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <td className="px-6 py-3 align-top pl-8">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          value={filtros.nombre}
+                          onChange={(e) => { handleFiltroChange('nombre', e.target.value); setPaginaActual(1); }}
+                          placeholder="Nombre..."
+                          className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.estado}
+                        onChange={(e) => { handleFiltroChange('estado', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top pr-8 text-center">—</td>
+                  </tr>
+                </tbody>
+              )}
+              <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-800">
                 {clientesPaginados.map((cliente) => (
                   <tr key={cliente.id} className="table-row">
-                    <td className="table-cell">
+                    <td className="table-cell pl-8">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -336,7 +389,7 @@ const Clientes: React.FC = () => {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-slate-900">{cliente.nombre}</div>
+                          <div className="text-sm font-medium text-slate-900 dark:text-white">{cliente.nombre}</div>
                         </div>
                       </div>
                     </td>
@@ -395,7 +448,7 @@ const Clientes: React.FC = () => {
                       </div>
                     </td>
                     
-                    <td className="px-6 py-4 text-sm text-slate-900 w-32">
+                    <td className="table-cell pr-8 text-center w-32">
                       <div className="flex items-center justify-center gap-3">
                         <button 
                           onClick={() => abrirModalEditar(cliente)}
@@ -422,8 +475,8 @@ const Clientes: React.FC = () => {
 
         {/* Controles de Paginación */}
         {totalPaginas > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
-              <div className="flex items-center text-sm text-slate-700">
+          <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-transparent border-t border-slate-200 dark:border-gray-800">
+              <div className="flex items-center text-sm text-slate-700 dark:text-slate-300">
                 <span>
                   Mostrando {inicioIndice + 1} a {Math.min(finIndice, clientesFiltrados.length)} de {clientesFiltrados.length} clientes
                 </span>

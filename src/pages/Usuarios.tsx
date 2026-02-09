@@ -4,7 +4,9 @@ import {
   SearchIcon,
   EditIcon,
   TrashIcon,
-  UserIcon
+  UserIcon,
+  FilterIcon,
+  DownloadIcon
 } from '../components/icons/Icons';
 import { Usuario, RolUsuario, FiltrosUsuario } from '../types/Usuario';
 import { Local } from '../types/Empresa';
@@ -124,6 +126,7 @@ const Usuarios: React.FC = () => {
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
   const [usuarioEliminar, setUsuarioEliminar] = useState<Usuario | null>(null);
+  const [mostrarFiltrosTabla, setMostrarFiltrosTabla] = useState(false);
 
   // Filtrar usuarios
   const usuariosFiltrados = useMemo(() => {
@@ -244,162 +247,173 @@ const Usuarios: React.FC = () => {
     return activo ? 'Activo' : 'Inactivo';
   };
 
+  const exportarUsuarios = () => {
+    const headers = ['Nombre', 'DNI', 'Email', 'Teléfono', 'Rol', 'Local', 'Estado', 'Último Acceso'];
+    const filas = usuariosFiltrados.map((u) => [
+      u.nombre,
+      u.dni,
+      u.email,
+      u.telefono,
+      getRolLabel(u.rol),
+      u.localNombre || 'Sin asignar',
+      getEstadoLabel(u.activo),
+      u.ultimoAcceso || 'Nunca'
+    ]);
+    const csv = '\uFEFF' + [headers.join(','), ...filas.map((f) => f.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `usuarios_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8 px-8 py-8">
       {/* Header */}
-      <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-start md:space-y-0">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-slate-900">Gestión de Usuarios</h1>
-          <p className="text-slate-600 mt-1">
-            Administra los usuarios del sistema y sus permisos por local
-          </p>
-        </div>
-        <div className="flex-shrink-0 md:ml-6 ">
-          <button
-            onClick={() => setModalCrearAbierto(true)}
-            className="btn-primary whitespace-nowrap"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Nuevo Usuario
-          </button>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="card">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-slate-900">Filtros</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Buscar
-            </label>
-            <div className="relative">
-              <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={filtros.busqueda}
-                onChange={(e) => handleFiltroChange('busqueda', e.target.value)}
-                className="input-field pl-8 py-2 text-sm"
-                placeholder="Nombre, DNI, email, teléfono..."
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Rol
-            </label>
-            <select
-              value={filtros.rol || ''}
-              onChange={(e) => handleFiltroChange('rol', e.target.value || undefined)}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todos los roles</option>
-              <option value="admin">Administrador</option>
-              <option value="trabajador">Trabajador</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Local
-            </label>
-            <select
-              value={filtros.localId}
-              onChange={(e) => handleFiltroChange('localId', e.target.value)}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todos los locales</option>
-              {locales.map(local => (
-                <option key={local.id} value={local.id}>
-                  {local.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Estado
-            </label>
-            <select
-              value={filtros.activo === undefined ? '' : filtros.activo.toString()}
-              onChange={(e) => handleFiltroChange('activo', e.target.value === '' ? undefined : e.target.value === 'true')}
-              className="input-field py-2 text-sm"
-            >
-              <option value="">Todos</option>
-              <option value="true">Activo</option>
-              <option value="false">Inactivo</option>
-            </select>
-          </div>
-
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-slate-200">
-          <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-y-0">
-            <div className="text-sm text-slate-600">
-              <span className="font-medium">Tip:</span> Filtra por nombre, DNI, email, teléfono, rol, local y estado
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={limpiarFiltros}
-                className="btn-secondary flex items-center justify-center px-3 py-1 text-sm"
-              >
-                Limpiar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <span className="text-sm text-slate-600">
-            {usuariosFiltrados.length} usuario{usuariosFiltrados.length !== 1 ? 's' : ''} encontrado{usuariosFiltrados.length !== 1 ? 's' : ''}
-            {totalPaginas > 1 && ` • Página ${paginaActual} de ${totalPaginas}`}
-          </span>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Gestión de Usuarios</h1>
       </div>
 
       {/* Tabla de Usuarios */}
-      <div className="card">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0 mb-8">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-900">Lista de Usuarios</h2>
+      <div className="card py-5 px-8">
+        {/* Fila 1: Título a la izquierda, Export y Nuevo Usuario a la derecha */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800 -mx-8 px-8">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Lista de Usuarios</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Administra los usuarios disponibles en el sistema</p>
           </div>
-          <div className="flex-shrink-0 lg:ml-6">
-            <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
-              {usuariosFiltrados.length} usuario{usuariosFiltrados.length !== 1 ? 's' : ''}
-            </span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={exportarUsuarios}
+              className="inline-flex items-center justify-center gap-2 px-4 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600"
+              style={{ minHeight: '48px', paddingTop: '12px', paddingBottom: '12px' }}
+              title="Exportar usuarios"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              Export
+            </button>
+            <button
+              onClick={() => setModalCrearAbierto(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+              style={{ minHeight: '48px', paddingTop: '12px', paddingBottom: '12px' }}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Nuevo Usuario
+            </button>
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        {/* Fila 2: Buscador a la izquierda, Filter a la derecha */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 pb-2">
+          <div className="relative w-full sm:max-w-md">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={filtros.busqueda}
+              onChange={(e) => {
+                handleFiltroChange('busqueda', e.target.value);
+                setPaginaActual(1);
+              }}
+              placeholder="Search..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setMostrarFiltrosTabla((prev) => !prev)}
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600 flex-shrink-0 ${
+              mostrarFiltrosTabla ? 'ring-2 ring-green-500 border-green-500' : ''
+            }`}
+            title={mostrarFiltrosTabla ? 'Ocultar filtros' : 'Mostrar filtros por columna'}
+          >
+            <FilterIcon className="h-4 w-4" />
+            Filter
+          </button>
+        </div>
+
+        <div className="overflow-hidden -mx-8 pt-2">
           {/* Tabla para desktop */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-green-200">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th className="table-header">Usuario</th>
+                  <th className="table-header pl-8">Usuario</th>
                   <th className="table-header">Contacto</th>
                   <th className="table-header">Rol</th>
                   <th className="table-header">Local Asignado</th>
                   <th className="table-header">Estado</th>
                   <th className="table-header">Último Acceso</th>
-                  <th className="table-header text-center w-36">Acciones</th>
+                  <th className="table-header text-center w-36 pr-8">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-green-200">
+              {mostrarFiltrosTabla && (
+                <tbody className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <td className="px-6 py-3 align-top pl-8">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          value={filtros.busqueda}
+                          onChange={(e) => { handleFiltroChange('busqueda', e.target.value); setPaginaActual(1); }}
+                          placeholder="Nombre, DNI, email..."
+                          className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.rol || ''}
+                        onChange={(e) => { handleFiltroChange('rol', e.target.value || undefined); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        <option value="admin">Administrador</option>
+                        <option value="trabajador">Trabajador</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.localId}
+                        onChange={(e) => { handleFiltroChange('localId', e.target.value); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        {locales.map((l) => (
+                          <option key={l.id} value={l.id}>{l.nombre}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 align-top">
+                      <select
+                        value={filtros.activo === undefined ? '' : filtros.activo.toString()}
+                        onChange={(e) => { handleFiltroChange('activo', e.target.value === '' ? undefined : e.target.value === 'true'); setPaginaActual(1); }}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      >
+                        <option value="">Todos</option>
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 align-top">—</td>
+                    <td className="px-6 py-3 align-top pr-8 text-center">—</td>
+                  </tr>
+                </tbody>
+              )}
+              <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-800">
                 {usuariosPaginados.map((usuario) => (
                   <tr key={usuario.id} className="table-row">
-                    <td className="table-cell">
+                    <td className="table-cell pl-8">
                       <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                          <UserIcon className="h-5 w-5 text-green-600" />
+                        <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                          <UserIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-900">{usuario.nombre}</div>
+                          <div className="font-semibold text-slate-900 dark:text-white">{usuario.nombre}</div>
                           <div className="text-xs text-slate-500">DNI: {usuario.dni}</div>
                         </div>
                       </div>
@@ -430,7 +444,7 @@ const Usuarios: React.FC = () => {
                         {usuario.ultimoAcceso || 'Nunca'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-900 w-36">
+                    <td className="table-cell pr-8 text-center w-36">
                       <div className="flex items-center justify-center gap-3">
                         <button 
                           onClick={() => abrirModalEdicion(usuario)}
@@ -513,8 +527,8 @@ const Usuarios: React.FC = () => {
 
           {/* Controles de Paginación */}
           {totalPaginas > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
-              <div className="flex items-center text-sm text-slate-700">
+            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-transparent border-t border-slate-200 dark:border-gray-800">
+              <div className="flex items-center text-sm text-slate-700 dark:text-slate-300">
                 <span>
                   Mostrando {inicioIndice + 1} a {Math.min(finIndice, usuariosFiltrados.length)} de {usuariosFiltrados.length} usuarios
                 </span>

@@ -14,6 +14,15 @@
     <title>Cancha Sintética - Back Office</title>
   </head>
   <body>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('cancha-backoffice-theme');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        } catch (e) {}
+      })();
+    </script>
     <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
     <div id="root"></div>
   </body>

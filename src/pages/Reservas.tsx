@@ -228,12 +228,14 @@ const Reservas: React.FC = () => {
     : reservas.filter(reserva => reserva.localId === CURRENT_USER_LOCAL_ID);
 
   const canchas = ['Cancha 1', 'Cancha 2', 'Cancha 3'];
-  const estados: EstadoReserva[] = ['pendiente_de_pago', 'pagado_confirmado', 'cancelado', 'rechazado'];
+  const estados: EstadoReserva[] = ['pendiente_de_pago', 'pagado_pendiente_confirmacion', 'pagado_confirmado', 'cancelado', 'rechazado'];
 
   const getEstadoColor = (estado: EstadoReserva) => {
     switch (estado) {
       case 'pagado_confirmado':
         return 'status-confirmed';
+      case 'pagado_pendiente_confirmacion':
+        return 'status-pending-confirmation';
       case 'pendiente_de_pago':
         return 'status-pending-payment';
       case 'cancelado':
@@ -261,6 +263,8 @@ const Reservas: React.FC = () => {
     switch (estado) {
       case 'pagado_confirmado':
         return 'Pagado - Confirmado';
+      case 'pagado_pendiente_confirmacion':
+        return 'Pendiente de confirmación';
       case 'pendiente_de_pago':
         return 'Pendiente de Pago';
       case 'cancelado':
@@ -275,11 +279,11 @@ const Reservas: React.FC = () => {
   const getOrigenColor = (origen: OrigenReserva) => {
     switch (origen) {
       case 'web':
-        return 'bg-blue-100 text-blue-800';
+        return 'text-blue-600 dark:text-blue-400 font-bold';
       case 'local':
-        return 'bg-green-100 text-green-800';
+        return 'text-green-600 dark:text-green-400 font-bold';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'text-gray-600 dark:text-slate-400 font-bold';
     }
   };
 
@@ -447,13 +451,13 @@ const Reservas: React.FC = () => {
     <div className="space-y-8 px-8 py-8">
       {/* Título */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Reservas</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Reservas</h1>
       </div>
 
       {/* Card principal: título + botón; dentro, card interior que envuelve solo las métricas */}
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h2 className="text-lg font-bold text-slate-900">Descripción</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Descripción</h2>
           <Link
             to="/nueva-reserva"
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
@@ -463,23 +467,23 @@ const Reservas: React.FC = () => {
           </Link>
         </div>
         {/* Card interior: envuelve solo los datos y números (como en Dashboard) */}
-        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#101f28] overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-gray-800">
           <div className="flex flex-col p-4 sm:px-6">
-            <p className="text-sm text-slate-500 font-medium mb-2">Total reservas</p>
-            <p className="text-3xl font-bold text-slate-900">{reservasFiltradasPorLocal.length}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-2">Total reservas</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">{reservasFiltradasPorLocal.length}</p>
           </div>
           <div className="flex flex-col p-4 sm:px-6">
-            <p className="text-sm text-slate-500 font-medium mb-2">Pendientes de pago</p>
-            <p className="text-3xl font-bold text-slate-900">{pendientesPago}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-2">Pendientes de pago</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">{pendientesPago}</p>
           </div>
           <div className="flex flex-col p-4 sm:px-6">
-            <p className="text-sm text-slate-500 font-medium mb-2">Reservas hoy</p>
-            <p className="text-3xl font-bold text-slate-900">{reservasHoy.length}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-2">Reservas hoy</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">{reservasHoy.length}</p>
           </div>
           <div className="flex flex-col p-4 sm:px-6">
-            <p className="text-sm text-slate-500 font-medium mb-2">Ingresos confirmados</p>
-            <p className="text-3xl font-bold text-slate-900">S/ {ingresosConfirmados.toLocaleString()}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-2">Ingresos confirmados</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">S/ {ingresosConfirmados.toLocaleString()}</p>
           </div>
         </div>
         </div>
@@ -490,12 +494,12 @@ const Reservas: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           {/* Izquierda: título y subtítulo */}
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Lista de Reservas</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Tu lista de reservas recientes</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Lista de Reservas</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Tu lista de reservas recientes</p>
           </div>
           {/* Derecha: segmentado + búsqueda + Filter + Export */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="inline-flex bg-gray-100 rounded-lg p-1">
+            <div className="inline-flex bg-gray-100 dark:bg-white/10 rounded-lg p-1">
               {[
                 { value: '', label: 'Todos' },
                 { value: 'pagado_confirmado', label: 'Pagado' },
@@ -510,8 +514,8 @@ const Reservas: React.FC = () => {
                   }}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     filtros.estado === value
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
+                      ? 'bg-white dark:bg-white/20 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
                   }`}
                 >
                   {label}
@@ -528,13 +532,13 @@ const Reservas: React.FC = () => {
                   setPaginaActual(1);
                 }}
                 placeholder="Search..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <button
               type="button"
               onClick={() => setMostrarFiltrosTabla(prev => !prev)}
-              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 ${
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600 ${
                 mostrarFiltrosTabla ? 'ring-2 ring-green-500 border-green-500' : ''
               }`}
               title={mostrarFiltrosTabla ? "Ocultar filtros" : "Mostrar filtros por columna"}
@@ -658,34 +662,34 @@ const Reservas: React.FC = () => {
                   </tr>
                 </tbody>
               )}
-              <tbody className="bg-white">
+              <tbody className="bg-white dark:bg-transparent">
                 {reservasPaginadas.map((reserva) => (
-                  <tr key={reserva.id} className="table-row border-b border-gray-200 last:border-b-0">
+                  <tr key={reserva.id} className="table-row border-b border-gray-200 dark:border-gray-800 last:border-b-0">
                     <td className="table-cell">
                       <div>
-                        <div className="font-semibold text-slate-900">{reserva.nombreCliente}</div>
-                        <div className="text-xs text-slate-500">{reserva.email}</div>
+                        <div className="font-semibold text-slate-900 dark:text-white">{reserva.nombreCliente}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-300">{reserva.email}</div>
                       </div>
                     </td>
                     <td className="table-cell">
-                      <div className="text-slate-600 font-medium">
+                      <div className="text-slate-600 dark:text-slate-200 font-medium">
                         {reserva.telefono.replace(/-/g, '').startsWith('9') ? reserva.telefono.replace(/-/g, '').slice(0, 9) : '9' + reserva.telefono.replace(/-/g, '').slice(0, 8)}
                       </div>
                     </td>
                     <td className="table-cell">
-                      <div className="text-slate-600 font-medium">{formatFechaHora(reserva.fecha, reserva.hora, reserva.duracion)}</div>
+                      <div className="text-slate-600 dark:text-slate-200 font-medium">{formatFechaHora(reserva.fecha, reserva.hora, reserva.duracion)}</div>
                     </td>
                     <td className="table-cell">
-                      <div className="text-slate-600 font-medium">{reserva.cancha}</div>
+                      <div className="text-slate-600 dark:text-slate-200 font-medium">{reserva.cancha}</div>
                     </td>
                     {CURRENT_USER_ROLE === 'admin' && (
                       <td className="table-cell">
-                        <div className="text-slate-600 font-medium">
+                        <div className="text-slate-600 dark:text-slate-200 font-medium">
                           {locales.find(local => local.id === reserva.localId)?.nombre || 'N/A'}
                         </div>
                       </td>
                     )}
-                    <td className="table-cell font-bold text-slate-900">S/ {reserva.precio}</td>
+                    <td className="table-cell font-bold text-slate-900 dark:text-white">S/ {reserva.precio}</td>
                     <td className="table-cell">
                       <span className={`status-badge ${getEstadoColor(reserva.estado)}`}>
                         {getEstadoLabel(reserva.estado)}
@@ -696,7 +700,7 @@ const Reservas: React.FC = () => {
                         {getOrigenLabel(reserva.origen)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-900 w-44">
+                    <td className="px-6 py-4 text-sm text-slate-900 dark:text-slate-200 w-44">
                       <div className="flex items-center justify-center gap-2">
                         <button 
                           onClick={() => abrirModalVer(reserva)}
@@ -706,38 +710,38 @@ const Reservas: React.FC = () => {
                           <EyeIcon className="h-5 w-5" />
                         </button>
                         <button 
-                          onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEdicion(reserva) : undefined}
+                          onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalEdicion(reserva) : undefined}
                           className={`inline-flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 border ${
-                            reserva.estado === 'pendiente_de_pago'
+                            (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                               ? 'text-green-600 hover:text-white hover:bg-green-600 border-green-200 hover:border-green-600 cursor-pointer'
-                              : 'text-gray-300 border-gray-200 cursor-not-allowed bg-gray-50'
+                              : 'text-gray-300 dark:text-slate-500 border-gray-200 dark:border-slate-600 cursor-not-allowed bg-gray-50 dark:bg-white/5'
                           }`}
-                          title={reserva.estado === 'pendiente_de_pago' ? "Editar reserva" : "No se puede editar una reserva confirmada"}
-                          disabled={reserva.estado === 'pagado_confirmado'}
+                          title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Editar reserva" : "No se puede editar una reserva confirmada"}
+                          disabled={reserva.estado === 'pagado_confirmado' || reserva.estado === 'cancelado' || reserva.estado === 'rechazado'}
                         >
                           <EditIcon className="h-5 w-5" />
                         </button>
                         <button 
-                          onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalRechazar(reserva) : undefined}
+                          onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalRechazar(reserva) : undefined}
                           className={`inline-flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 border ${
-                            reserva.estado === 'pendiente_de_pago'
+                            (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                               ? 'text-amber-600 hover:text-white hover:bg-amber-600 border-amber-200 hover:border-amber-600 cursor-pointer'
-                              : 'text-gray-300 border-gray-200 cursor-not-allowed bg-gray-50'
+                              : 'text-gray-300 dark:text-slate-500 border-gray-200 dark:border-slate-600 cursor-not-allowed bg-gray-50 dark:bg-white/5'
                           }`}
-                          title={reserva.estado === 'pendiente_de_pago' ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
-                          disabled={reserva.estado !== 'pendiente_de_pago'}
+                          title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
+                          disabled={reserva.estado !== 'pendiente_de_pago' && reserva.estado !== 'pagado_pendiente_confirmacion'}
                         >
                           <TimesCircleIcon className="h-5 w-5" />
                         </button>
                         <button 
-                          onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEliminar(reserva) : undefined}
+                          onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalEliminar(reserva) : undefined}
                           className={`inline-flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 border ${
-                            reserva.estado === 'pendiente_de_pago'
+                            (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                               ? 'text-red-600 hover:text-white hover:bg-red-600 border-red-200 hover:border-red-600 cursor-pointer'
-                              : 'text-gray-300 border-gray-200 cursor-not-allowed bg-gray-50'
+                              : 'text-gray-300 dark:text-slate-500 border-gray-200 dark:border-slate-600 cursor-not-allowed bg-gray-50 dark:bg-white/5'
                           }`}
-                          title={reserva.estado === 'pendiente_de_pago' ? "Eliminar reserva" : "No se puede eliminar una reserva confirmada"}
-                          disabled={reserva.estado === 'pagado_confirmado'}
+                          title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Eliminar reserva" : "No se puede eliminar una reserva confirmada"}
+                          disabled={reserva.estado === 'pagado_confirmado' || reserva.estado === 'cancelado' || reserva.estado === 'rechazado'}
                         >
                           <TrashIcon className="h-5 w-5" />
                         </button>
@@ -751,8 +755,8 @@ const Reservas: React.FC = () => {
 
           {/* Controles de Paginación */}
           {totalPaginas > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
-              <div className="flex items-center text-sm text-slate-700">
+            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-transparent border-t border-slate-200 dark:border-gray-800">
+              <div className="flex items-center text-sm text-slate-700 dark:text-slate-200">
                 <span>
                   Mostrando {inicioIndice + 1} a {Math.min(finIndice, reservasFiltradas.length)} de {reservasFiltradas.length} reservas
                 </span>
@@ -765,8 +769,8 @@ const Reservas: React.FC = () => {
                   disabled={paginaActual === 1}
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200 ${
                     paginaActual === 1
-                      ? 'text-slate-400 cursor-not-allowed'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                 >
                   Primera
@@ -778,8 +782,8 @@ const Reservas: React.FC = () => {
                   disabled={paginaActual === 1}
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200 ${
                     paginaActual === 1
-                      ? 'text-slate-400 cursor-not-allowed'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                 >
                   Anterior
@@ -806,7 +810,7 @@ const Reservas: React.FC = () => {
                         className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200 ${
                           numeroPagina === paginaActual
                             ? 'bg-green-600 text-white'
-                            : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                            : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                         }`}
                       >
                         {numeroPagina}
@@ -821,8 +825,8 @@ const Reservas: React.FC = () => {
                   disabled={paginaActual === totalPaginas}
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200 ${
                     paginaActual === totalPaginas
-                      ? 'text-slate-400 cursor-not-allowed'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                 >
                   Siguiente
@@ -834,8 +838,8 @@ const Reservas: React.FC = () => {
                   disabled={paginaActual === totalPaginas}
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200 ${
                     paginaActual === totalPaginas
-                      ? 'text-slate-400 cursor-not-allowed'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                 >
                   Última
@@ -890,38 +894,38 @@ const Reservas: React.FC = () => {
                     <EyeIcon className="h-4 w-4" />
                   </button>
                   <button 
-                    onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEdicion(reserva) : undefined}
+                    onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalEdicion(reserva) : undefined}
                     className={`inline-flex items-center justify-center p-2 rounded-full transition-all duration-200 ${
-                      reserva.estado === 'pendiente_de_pago'
+                      (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                         ? 'text-green-600 hover:text-green-700 hover:bg-green-50 cursor-pointer'
                         : 'text-gray-400 cursor-not-allowed'
                     }`}
-                    title={reserva.estado === 'pendiente_de_pago' ? "Editar reserva" : "No se puede editar una reserva confirmada"}
-                    disabled={reserva.estado === 'pagado_confirmado'}
+                    title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Editar reserva" : "No se puede editar una reserva confirmada"}
+                    disabled={reserva.estado === 'pagado_confirmado' || reserva.estado === 'cancelado' || reserva.estado === 'rechazado'}
                   >
                     <EditIcon className="h-4 w-4" />
                   </button>
                   <button 
-                    onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalRechazar(reserva) : undefined}
+                    onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalRechazar(reserva) : undefined}
                     className={`inline-flex items-center justify-center p-2 rounded-full transition-all duration-200 ${
-                      reserva.estado === 'pendiente_de_pago'
+                      (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                         ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 cursor-pointer'
                         : 'text-gray-400 cursor-not-allowed'
                     }`}
-                    title={reserva.estado === 'pendiente_de_pago' ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
-                    disabled={reserva.estado !== 'pendiente_de_pago'}
+                    title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Rechazar reserva" : "Solo se puede rechazar una reserva pendiente"}
+                    disabled={reserva.estado !== 'pendiente_de_pago' && reserva.estado !== 'pagado_pendiente_confirmacion'}
                   >
                     <TimesCircleIcon className="h-4 w-4" />
                   </button>
                   <button 
-                    onClick={reserva.estado === 'pendiente_de_pago' ? () => abrirModalEliminar(reserva) : undefined}
+                    onClick={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? () => abrirModalEliminar(reserva) : undefined}
                     className={`inline-flex items-center justify-center p-2 rounded-full transition-all duration-200 ${
-                      reserva.estado === 'pendiente_de_pago'
+                      (reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion')
                         ? 'text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer'
                         : 'text-gray-400 cursor-not-allowed'
                     }`}
-                    title={reserva.estado === 'pendiente_de_pago' ? "Eliminar reserva" : "No se puede eliminar una reserva confirmada"}
-                    disabled={reserva.estado === 'pagado_confirmado'}
+                    title={(reserva.estado === 'pendiente_de_pago' || reserva.estado === 'pagado_pendiente_confirmacion') ? "Eliminar reserva" : "No se puede eliminar una reserva confirmada"}
+                    disabled={reserva.estado === 'pagado_confirmado' || reserva.estado === 'cancelado' || reserva.estado === 'rechazado'}
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>

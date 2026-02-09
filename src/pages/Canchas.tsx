@@ -5,6 +5,8 @@ import {
   TrashIcon,
   TimesCircleIcon,
   SearchIcon,
+  FilterIcon,
+  DownloadIcon,
 } from "../components/icons/Icons";
 import { Cancha, Local } from "../types/Empresa";
 
@@ -213,6 +215,7 @@ const Canchas: React.FC = () => {
   const [canchaEditando, setCanchaEditando] = useState<Cancha | null>(null);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
   const [canchaEliminar, setCanchaEliminar] = useState<Cancha | null>(null);
+  const [mostrarFiltrosTabla, setMostrarFiltrosTabla] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     tipo: "",
@@ -308,146 +311,116 @@ const Canchas: React.FC = () => {
     return disponible ? "Operando" : "En Mantenimiento";
   };
 
+  const exportarCanchas = () => {
+    const headers = [
+      "Nombre",
+      "Tipo",
+      "Local",
+      "Precio/Hora",
+      "Estado",
+    ];
+    const filas = canchasFiltradas.map((cancha) => [
+      cancha.nombre,
+      cancha.tipo,
+      locales.find((l) => l.id === cancha.localId)?.nombre ?? "Sin local",
+      String(cancha.precioHora),
+      getEstadoLabel(cancha.disponible),
+    ]);
+    const csv =
+      "\uFEFF" +
+      [headers.join(","), ...filas.map((f) => f.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `canchas_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <div className="space-y-8 px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-start md:space-y-0">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-900">
-              Gestión de Canchas
-            </h1>
-            <p className="text-slate-600 mt-1">
-              Administra las canchas disponibles en el sistema
-            </p>
-          </div>
-          <div className="flex-shrink-0 md:ml-6">
-            <button
-              onClick={abrirModalNuevaCancha}
-              className="btn-primary whitespace-nowrap"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" />
-              Nueva Cancha
-            </button>
-          </div>
-        </div>
-
-        {/* Filtros */}
-        <div className="card">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Filtros</h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Buscar
-              </label>
-              <div className="relative">
-                <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={filtros.busqueda}
-                  onChange={(e) =>
-                    handleFiltroChange("busqueda", e.target.value)
-                  }
-                  className="input-field pl-8 py-2 text-sm"
-                  placeholder="Nombre de cancha..."
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Local
-              </label>
-              <select
-                value={filtros.local}
-                onChange={(e) => handleFiltroChange("local", e.target.value)}
-                className="input-field py-2 text-sm"
-              >
-                <option value="todos">Todos los Locales</option>
-                {locales.map((local) => (
-                  <option key={local.id} value={local.id}>
-                    {local.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Tipo
-              </label>
-              <select
-                value={filtros.tipo}
-                onChange={(e) => handleFiltroChange("tipo", e.target.value)}
-                className="input-field py-2 text-sm"
-              >
-                <option value="">Todos los Tipos</option>
-                {tiposCancha.map((tipo) => (
-                  <option key={tipo} value={tipo}>
-                    {tipo}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Estado
-              </label>
-              <select
-                value={filtros.estado}
-                onChange={(e) => handleFiltroChange("estado", e.target.value)}
-                className="input-field py-2 text-sm"
-              >
-                <option value="">Todos los Estados</option>
-                <option value="disponible">Disponible</option>
-                <option value="mantenimiento">En Mantenimiento</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-y-0">
-              <div className="text-sm text-slate-600">
-                <span className="font-medium">Tip:</span> Filtra por nombre,
-                local, tipo y estado de las canchas
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={limpiarFiltros}
-                  className="btn-secondary flex items-center justify-center px-3 py-1 text-sm"
-                >
-                  Limpiar
-                </button>
-              </div>
-            </div>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            Gestión de Canchas
+          </h1>
         </div>
 
         {/* Lista de Canchas */}
         <div className="card">
-          <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0 mb-8">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-900">
+          {/* Fila 1: Título a la izquierda, Export y Nueva Cancha a la derecha */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800 -mx-8 px-8">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                 Lista de Canchas
               </h2>
+              <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
+                Administra las canchas disponibles en el sistema
+              </p>
             </div>
-            <div className="flex-shrink-0 lg:ml-6">
-              <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
-                {canchasFiltradas.length} cancha
-                {canchasFiltradas.length !== 1 ? "s" : ""}
-              </span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={exportarCanchas}
+                className="inline-flex items-center justify-center gap-2 px-4 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600"
+                style={{ minHeight: "48px", paddingTop: "12px", paddingBottom: "12px" }}
+                title="Exportar canchas"
+              >
+                <DownloadIcon className="h-4 w-4" />
+                Export
+              </button>
+              <button
+                onClick={abrirModalNuevaCancha}
+                className="inline-flex items-center justify-center gap-2 px-4 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+                style={{ minHeight: "48px", paddingTop: "12px", paddingBottom: "12px" }}
+              >
+                <PlusIcon className="h-4 w-4" />
+                Nueva Cancha
+              </button>
             </div>
           </div>
 
-          <div className="overflow-hidden -mx-8">
+          {/* Fila 2: Buscador a la izquierda, Filter a la derecha */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 pb-2">
+            <div className="relative w-full sm:max-w-md">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={filtros.busqueda}
+                onChange={(e) => {
+                  handleFiltroChange("busqueda", e.target.value);
+                  setPaginaActual(1);
+                }}
+                placeholder="Search..."
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setMostrarFiltrosTabla((prev) => !prev)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-200 transition-colors hover:bg-gray-50 dark:hover:bg-slate-600 flex-shrink-0 ${
+                mostrarFiltrosTabla
+                  ? "ring-2 ring-green-500 border-green-500"
+                  : ""
+              }`}
+              title={
+                mostrarFiltrosTabla
+                  ? "Ocultar filtros"
+                  : "Mostrar filtros por columna"
+              }
+            >
+              <FilterIcon className="h-4 w-4" />
+              Filter
+            </button>
+          </div>
+
+          <div className="overflow-hidden -mx-8 pt-2">
             {/* Tabla para desktop */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y-2 divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y-2 divide-gray-200 dark:divide-gray-800">
+                <thead>
                   <tr>
                     <th className="table-header pl-8">Imagen</th>
                     <th className="table-header">Nombre</th>
@@ -458,7 +431,79 @@ const Canchas: React.FC = () => {
                     <th className="table-header text-center w-32 pr-8">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y-2 divide-gray-100">
+                {mostrarFiltrosTabla && (
+                  <tbody className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <td className="px-6 py-3 align-top pl-8">—</td>
+                      <td className="px-6 py-3 align-top">
+                        <div className="relative">
+                          <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <input
+                            type="text"
+                            value={filtros.busqueda}
+                            onChange={(e) => {
+                              handleFiltroChange("busqueda", e.target.value);
+                              setPaginaActual(1);
+                            }}
+                            placeholder="Nombre..."
+                            className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 align-top">
+                        <select
+                          value={filtros.tipo}
+                          onChange={(e) => {
+                            handleFiltroChange("tipo", e.target.value);
+                            setPaginaActual(1);
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="">Todos</option>
+                          {tiposCancha.map((tipo) => (
+                            <option key={tipo} value={tipo}>
+                              {tipo}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 align-top">
+                        <select
+                          value={filtros.local}
+                          onChange={(e) => {
+                            handleFiltroChange("local", e.target.value);
+                            setPaginaActual(1);
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="todos">Todos</option>
+                          {locales.map((local) => (
+                            <option key={local.id} value={local.id}>
+                              {local.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 align-top">—</td>
+                      <td className="px-6 py-3 align-top">
+                        <select
+                          value={filtros.estado}
+                          onChange={(e) => {
+                            handleFiltroChange("estado", e.target.value);
+                            setPaginaActual(1);
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="">Todos</option>
+                          <option value="disponible">Operando</option>
+                          <option value="mantenimiento">Mantenimiento</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 align-top pr-8 text-center">—</td>
+                    </tr>
+                  </tbody>
+                )}
+                <tbody className="bg-white dark:bg-transparent divide-y-2 divide-gray-100 dark:divide-gray-800">
                   {canchasPaginadas.map((cancha) => (
                     <tr key={cancha.id} className="table-row">
                       <td className="table-cell pl-8">
@@ -477,23 +522,23 @@ const Canchas: React.FC = () => {
                         </div>
                       </td>
                       <td className="table-cell">
-                        <div className="font-semibold text-slate-900">
+                        <div className="font-semibold text-slate-900 dark:text-white">
                           {cancha.nombre}
                         </div>
                       </td>
-                      <td className="table-cell text-slate-600">
+                      <td className="table-cell text-slate-600 dark:text-slate-300">
                         {cancha.tipo}
                       </td>
-                      <td className="table-cell text-slate-600">
+                      <td className="table-cell text-slate-600 dark:text-slate-300">
                         {locales.find((local) => local.id === cancha.localId)
                           ?.nombre || "Sin local"}
                       </td>
-                      <td className="table-cell font-bold text-slate-900">
+                      <td className="table-cell font-bold text-slate-900 dark:text-white">
                         S/ {cancha.precioHora}
                       </td>
                       <td className="table-cell">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(cancha.disponible)}`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getEstadoColor(cancha.disponible)}`}
                         >
                           {getEstadoLabel(cancha.disponible)}
                         </span>
@@ -557,7 +602,7 @@ const Canchas: React.FC = () => {
                           </p>
                         </div>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(cancha.disponible)}`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getEstadoColor(cancha.disponible)}`}
                         >
                           {getEstadoLabel(cancha.disponible)}
                         </span>
@@ -587,7 +632,7 @@ const Canchas: React.FC = () => {
 
           {/* Controles de Paginación */}
           {totalPaginas > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t-2 border-gray-200">
+            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-transparent border-t-2 border-gray-200 dark:border-gray-800">
               <div className="flex items-center text-sm text-slate-700">
                 <span>
                   Mostrando {inicioIndice + 1} a{" "}

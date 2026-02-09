@@ -21,7 +21,7 @@ export interface Reserva {
   observacionRechazo?: string;
 }
 
-export type EstadoReserva = 'pendiente_de_pago' | 'pagado_confirmado' | 'cancelado' | 'rechazado';
+export type EstadoReserva = 'pendiente_de_pago' | 'pagado_confirmado' | 'pagado_pendiente_confirmacion' | 'cancelado' | 'rechazado';
 
 export type MetodoPago = 
   | 'efectivo'

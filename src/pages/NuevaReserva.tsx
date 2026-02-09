@@ -36,7 +36,6 @@ const NuevaReserva: React.FC = () => {
   const [horaFin, setHoraFin] = useState<Date | null>(null);
   const [imagenPreview, setImagenPreview] = useState<string | null>(null);
   const [imagenNombre, setImagenNombre] = useState<string | null>(null);
-  const [modalVerImagenAbierto, setModalVerImagenAbierto] = useState(false);
   const [modalInfoPagoAbierto, setModalInfoPagoAbierto] = useState(false);
   const [modalVistaPreviaAbierto, setModalVistaPreviaAbierto] = useState(false);
 
@@ -261,8 +260,8 @@ const NuevaReserva: React.FC = () => {
                   Elige cualquier intervalo (ej. 06:30 - 07:40). El precio se calcula por día S/ 45 y noche S/ 60.
                 </p>
               </div>
-              {/* Método de pago e imagen */}
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 mt-6 pt-4 border-t border-slate-200 items-end">
+              {/* Método de pago y Estado */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-4 border-t border-slate-200">
                 <div>
                   <label className="block text-base font-semibold text-slate-700 mb-2">Método de pago</label>
                   <select
@@ -281,58 +280,69 @@ const NuevaReserva: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-base font-semibold text-slate-700 mb-2">Imagen</label>
-                  {imagenPreview && imagenNombre ? (
-                    <div className="px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 min-h-[42px] flex items-center">
-                      <span className="text-sm font-medium text-slate-700 truncate min-w-0" title={imagenNombre}>{imagenNombre}</span>
-                    </div>
-                  ) : (
-                    <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50 min-h-[42px] flex items-center justify-center">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const url = URL.createObjectURL(file);
-                            setImagenPreview(url);
-                            setImagenNombre(file.name);
-                          } else {
-                            setImagenPreview(null);
-                            setImagenNombre(null);
-                          }
-                        }}
-                        className="hidden"
-                        id="reserva-imagen"
-                      />
-                      <label htmlFor="reserva-imagen" className="cursor-pointer py-2.5 px-4 w-full text-center">
-                        <span className="text-sm text-slate-500">Haz clic o arrastra una imagen</span>
-                      </label>
-                    </div>
-                  )}
+                  <label className="block text-base font-semibold text-slate-700 mb-2">Estado</label>
+                  <select
+                    value={formData.estado ?? 'pendiente_de_pago'}
+                    onChange={(e) => handleInputChange('estado', e.target.value as EstadoReserva)}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="pendiente_de_pago">Pendiente de Pago</option>
+                    <option value="pagado_pendiente_confirmacion">Pendiente de confirmación</option>
+                    <option value="pagado_confirmado">Pagado - Confirmado</option>
+                  </select>
                 </div>
-                {imagenPreview && imagenNombre && (
-                  <div className="flex gap-2 pb-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setModalVerImagenAbierto(true)}
-                      title="Ver"
-                      className="p-2.5 text-green-700 bg-green-100 rounded-lg hover:bg-green-200 h-[42px] w-[42px] flex items-center justify-center"
-                    >
-                      <Eye className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        URL.revokeObjectURL(imagenPreview);
-                        setImagenPreview(null);
-                        setImagenNombre(null);
+              </div>
+
+              {/* Imagen - fila aparte */}
+              <div className="mt-4">
+                <label className="block text-base font-semibold text-slate-700 mb-2">Imagen</label>
+                {imagenPreview && imagenNombre ? (
+                  <div className="flex flex-col sm:flex-row gap-3 items-start">
+                    <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50 flex-shrink-0">
+                      <img
+                        src={imagenPreview}
+                        alt={imagenNombre}
+                        className="max-h-48 w-auto object-contain"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-600 truncate max-w-[200px]" title={imagenNombre}>{imagenNombre}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          URL.revokeObjectURL(imagenPreview);
+                          setImagenPreview(null);
+                          setImagenNombre(null);
+                        }}
+                        title="Eliminar"
+                        className="p-2.5 text-red-700 bg-red-100 rounded-lg hover:bg-red-200 h-[42px] w-[42px] flex items-center justify-center flex-shrink-0"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50 min-h-[42px] flex items-center justify-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setImagenPreview(url);
+                          setImagenNombre(file.name);
+                        } else {
+                          setImagenPreview(null);
+                          setImagenNombre(null);
+                        }
                       }}
-                      title="Eliminar"
-                      className="p-2.5 text-red-700 bg-red-100 rounded-lg hover:bg-red-200 h-[42px] w-[42px] flex items-center justify-center"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
+                      className="hidden"
+                      id="reserva-imagen"
+                    />
+                    <label htmlFor="reserva-imagen" className="cursor-pointer py-2.5 px-4 w-full text-center block">
+                      <span className="text-sm text-slate-500">Haz clic o arrastra una imagen</span>
+                    </label>
                   </div>
                 )}
               </div>
@@ -429,11 +439,11 @@ const NuevaReserva: React.FC = () => {
       <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Título fuera del card */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">Nueva Reserva</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Nueva Reserva</h1>
         </div>
 
         {/* Card mayor: envuelve el resto del contenido */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-6 sm:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
+        <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm px-6 sm:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
 
         {/* Contenido del Paso */}
         {renderStepContent()}
@@ -479,25 +489,6 @@ const NuevaReserva: React.FC = () => {
         </div>
         </div>
       </div>
-
-      {/* Modal ver imagen */}
-      {modalVerImagenAbierto && imagenPreview && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalVerImagenAbierto(false)}>
-          <div className="max-w-4xl max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-white rounded-xl overflow-hidden shadow-xl">
-              <div className="p-3 border-b border-slate-200 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-700 truncate">{imagenNombre}</span>
-                <button type="button" onClick={() => setModalVerImagenAbierto(false)} className="text-slate-400 hover:text-slate-600 p-1">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              </div>
-              <div className="p-4 flex justify-center bg-slate-100">
-                <img src={imagenPreview} alt="Vista previa" className="max-h-[70vh] w-auto object-contain rounded" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal información método de pago */}
       {modalInfoPagoAbierto && (
