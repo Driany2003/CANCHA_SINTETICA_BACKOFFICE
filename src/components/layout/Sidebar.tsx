@@ -331,7 +331,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       {visuallyExpanded && (
                         <span className="text-sm font-semibold truncate">{item.label}</span>
                       )}
-                    </Link>
+                    </Link> 
                   ))}
                 </div>
               </div>
